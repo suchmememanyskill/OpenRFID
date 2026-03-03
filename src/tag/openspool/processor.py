@@ -1,7 +1,7 @@
 from filament import GenericFilament
 from reader.scan_result import ScanResult
 from tag.ndef_tag_processor import NdefRecord, NdefTagProcessor
-import logging, json
+import json
 from . import constants as Constants
 
 # Adapted from https://github.com/paxx12/SnapmakerU1-Extended-Firmware/blob/3c97d1d80309d817ad37f2daac8e436712cc7865/overlays/firmware-extended/13-rfid-support/root/home/lava/klipper/klippy/extras/filament_protocol_ndef.py
@@ -18,26 +18,26 @@ class OpenspoolTagProcessor(NdefTagProcessor):
                 if parse is not None:
                     return parse
         
-        logging.error("OpenSpool processing failed: No valid OpenSpool NDEF record found")
+        self.logger.error("OpenSpool processing failed: No valid OpenSpool NDEF record found")
         return None
 
     def __openspool_parse_payload(self, payload : bytes) -> GenericFilament | None:
         if None == payload or not isinstance(payload, (bytes, bytearray)):
-            logging.error("OpenSpool payload parsing failed: Invalid payload parameter")
+            self.logger.error("OpenSpool payload parsing failed: Invalid payload parameter")
             return None
 
         try:
             payload_str = payload.decode('utf-8')
-            logging.debug(f"OpenSpool JSON payload: {payload_str}")
+            self.logger.debug(f"OpenSpool JSON payload: {payload_str}")
 
             data = json.loads(payload_str)
 
             if not isinstance(data, dict):
-                logging.error(f"OpenSpool payload parsing failed: JSON data is not a dict, got {type(data)}")
+                self.logger.error(f"OpenSpool payload parsing failed: JSON data is not a dict, got {type(data)}")
                 return None
 
             if data.get('protocol') != 'openspool':
-                logging.error(f"OpenSpool payload parsing failed: Invalid protocol '{data.get('protocol')}', expected 'openspool'")
+                self.logger.error(f"OpenSpool payload parsing failed: Invalid protocol '{data.get('protocol')}', expected 'openspool'")
                 return None
             
             brand = data.get('brand', 'Generic')
@@ -60,8 +60,8 @@ class OpenspoolTagProcessor(NdefTagProcessor):
             min_temp = int(data.get('min_temp', 0))
             max_temp = int(data.get('max_temp', 0))
 
-            if min_temp <= 170 and max_temp <= 0:
-                logging.error("OpenSpool payload parsing failed: Invalid temperature values")
+            if max_temp < min_temp:
+                self.logger.error("OpenSpool payload parsing failed: Invalid temperature values")
                 return None
             
             if main_type in Constants.FILAMENT_TYPE_TO_EXTENDED_DATA:
@@ -91,10 +91,10 @@ class OpenspoolTagProcessor(NdefTagProcessor):
                 manufacturing_date="0001-01-01"
             )
         except json.JSONDecodeError as e:
-            logging.exception("OpenSpool payload parsing failed: Invalid JSON: %s", str(e))
+            self.logger.exception("OpenSpool payload parsing failed: Invalid JSON: %s", str(e))
             return None
         except Exception as e:
-            logging.exception("OpenSpool payload parsing failed: %s", str(e))
+            self.logger.exception("OpenSpool payload parsing failed: %s", str(e))
             return None
     
     def __parse_color_hex(self, value : str):

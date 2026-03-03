@@ -6,7 +6,6 @@ from cryptography.hazmat.primitives import hashes
 from tag.tag_types import TagType
 from . import constants as Constants
 import struct
-import logging
 import tag.binary as binary
 
 class BambuTagProcessor(MifareClassicTagProcessor):
@@ -17,7 +16,7 @@ class BambuTagProcessor(MifareClassicTagProcessor):
         self.enabled = len(self.key) > 0
 
         if not self.enabled:
-            logging.warning("BambuTagProcessor: no valid key found in config, processor will be disabled")
+            self.logger.warning("BambuTagProcessor: no valid key found in config, processor will be disabled")
 
     def authenticate_tag(self, scan_result : ScanResult) -> TagAuthentication | None:
         if not self.enabled:
@@ -95,25 +94,25 @@ class BambuTagProcessor(MifareClassicTagProcessor):
 
         filament_modifier = detailed_type[len(filament_type):].strip() if detailed_type.startswith(filament_type) else detailed_type
         
-        logging.debug("Found Bambu Lab filament tag:")
-        logging.debug(" Filament Type: %s", filament_type)
-        logging.debug(" Detailed Type: %s", detailed_type)
-        logging.debug(" Filament Modifier: %s", filament_modifier)
-        logging.debug(" Material Variant ID: %s", material_variant_id)
-        logging.debug(" Material ID: %s", material_id)
-        logging.debug(" Color (ARGB): 0x%08X", argb_color)
-        logging.debug(" Weight (grams): %d", weight_grams)
-        logging.debug(" Diameter (mm): %.2f", diameter_mm)
-        logging.debug(" Drying Temp (C): %d", drying_temp)
-        logging.debug(" Drying Time (hours): %d", drying_time)
-        logging.debug(" Bed Temp Type: %d", bed_temp_type)
-        logging.debug(" Bed Temp (C): %d", bed_temp)
-        logging.debug(" Hotend Max Temp (C): %d", hotend_max_temp)
-        logging.debug(" Hotend Min Temp (C): %d", hotend_min_temp)
-        logging.debug(" Tray UID: %s", tray_uid.hex(":").upper())
-        logging.debug(" Production Date/Time: %s", production_datetime)
-        logging.debug(" Manufacturing Date: %s", manufacturing_date)
-        logging.debug(" Color Count: %d", color_count)
+        self.logger.debug("Found Bambu Lab filament tag:")
+        self.logger.debug(" Filament Type: %s", filament_type)
+        self.logger.debug(" Detailed Type: %s", detailed_type)
+        self.logger.debug(" Filament Modifier: %s", filament_modifier)
+        self.logger.debug(" Material Variant ID: %s", material_variant_id)
+        self.logger.debug(" Material ID: %s", material_id)
+        self.logger.debug(" Color (ARGB): 0x%08X", argb_color)
+        self.logger.debug(" Weight (grams): %d", weight_grams)
+        self.logger.debug(" Diameter (mm): %.2f", diameter_mm)
+        self.logger.debug(" Drying Temp (C): %d", drying_temp)
+        self.logger.debug(" Drying Time (hours): %d", drying_time)
+        self.logger.debug(" Bed Temp Type: %d", bed_temp_type)
+        self.logger.debug(" Bed Temp (C): %d", bed_temp)
+        self.logger.debug(" Hotend Max Temp (C): %d", hotend_max_temp)
+        self.logger.debug(" Hotend Min Temp (C): %d", hotend_min_temp)
+        self.logger.debug(" Tray UID: %s", tray_uid.hex(":").upper())
+        self.logger.debug(" Production Date/Time: %s", production_datetime)
+        self.logger.debug(" Manufacturing Date: %s", manufacturing_date)
+        self.logger.debug(" Color Count: %d", color_count)
         
         return GenericFilament(
             source_processor=self.name,

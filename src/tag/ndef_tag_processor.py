@@ -3,7 +3,6 @@ from filament import GenericFilament
 from reader.scan_result import ScanResult
 from tag.mifare_ultralight_tag_processor import MifareUltralightTagProcessor
 from abc import abstractmethod
-import logging
 import io
 
 from tag.tag_types import TagType
@@ -31,7 +30,7 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
         error, ndef_records = self.__ndef_parse(data)
 
         if error != NDEF_OK:
-            logging.error(f"NDEF parse failed: NDEF parsing error (code: {error})")
+            self.logger.error(f"NDEF parse failed: NDEF parsing error (code: {error})")
             return None
         
         return self.process_ndef(scan_result, ndef_records)
@@ -65,8 +64,8 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
         try:
             data = bytes(data_buf) if isinstance(data_buf, list) else data_buf
 
-            logging.debug("NDEF RFID data:")
-            logging.debug("\n" + self.__xxd_dump(data))
+            self.logger.debug("NDEF RFID data:")
+            self.logger.debug("\n" + self.__xxd_dump(data))
 
             data_io = io.BytesIO(data)
 
@@ -145,7 +144,7 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
 
                         if tnf == 0x02:
                             records.append(NdefRecord(mime_type, payload))
-                            logging.debug(f"NDEF record found: mime_type='{mime_type}', payload_len={len(payload)}")
+                            self.logger.debug(f"NDEF record found: mime_type='{mime_type}', payload_len={len(payload)}")
                 else:
                     data_io.seek(tlv_len, 1)
 
@@ -155,5 +154,5 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
             return NDEF_OK, records
 
         except Exception as e:
-            logging.exception("NDEF parsing failed: %s", str(e))
+            self.logger.exception("NDEF parsing failed: %s", str(e))
             return NDEF_ERR, []

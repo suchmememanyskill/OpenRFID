@@ -8,7 +8,6 @@ from reader.scan_result import ScanResult
 from config import get_required_configurable_entity_by_name, TYPE_SOFTWARE_SPI, TYPE_OUTPUT_PIN
 from typing import cast
 import time
-import logging
 
 # Reader command
 class Fm175xxCmdMetaData:
@@ -58,7 +57,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
     def scan(self) -> ScanResult | None:
         (ret, UID, ATQA, BCC, SAK) = self.__reader_a_activate()
         if (ret != Constants.FM175XX_OK):
-            logging.error("Scan error: %d", ret)
+            self.logger.error("Scan error: %d", ret)
             return None
 
         return ScanResult(tag_type_from_sak(bytes(SAK)), bytes(UID), bytes(ATQA), bytes(BCC), bytes(SAK))
@@ -67,7 +66,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
         data = self.__reader_a_m1_read_all_data(list(scan_result.uid), Constants.FM175XX_M1_CARD_AUTH_MODE_A, keys)
 
         if data.err_code != Constants.FM175XX_OK:
-            logging.error("Mifare Classic read error: %d", data.err_code)
+            self.logger.error("Mifare Classic read error: %d", data.err_code)
             return None
 
         return bytes(data.out_data)
@@ -76,7 +75,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
         data = self.__reader_a_ultralight_read_all_data()
 
         if data.err_code != Constants.FM175XX_OK:
-            logging.error("Mifare Classic read error: %d", data.err_code)
+            self.logger.error("Mifare Classic read error: %d", data.err_code)
             return None
 
         return bytes(data.out_data)
@@ -457,7 +456,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
 
         (ret, ATQA) = self.__reader_a_wakeup()
         if (Constants.FM175XX_OK != ret):
-            logging.error("wakeup err: %d", ret)
+            self.logger.error("wakeup err: %d", ret)
             return (Constants.FM175XX_CARD_WAKEUP_ERR, [], [], [], [])
 
         if ((ATQA[0] & 0xC0) == 0x00):
@@ -476,7 +475,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
         for level in range(cascade_level):
             (ret, UID_part, BCC_part) = self.__reader_a_anticoll(level)
             if (Constants.FM175XX_OK != ret):
-                logging.error("anticoll err: %d", ret)
+                self.logger.error("anticoll err: %d", ret)
                 ret = Constants.FM175XX_CARD_COLL_ERR
                 break
 
@@ -485,7 +484,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
 
             (ret, SAK_part) = self.__reader_a_select(level, UID_part, BCC_part)
             if (Constants.FM175XX_OK != ret):
-                logging.error("select err: %d", ret)
+                self.logger.error("select err: %d", ret)
                 ret = Constants.FM175XX_CARD_SELECT_ERR
                 break
 
@@ -628,7 +627,7 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
                     break
             if (Constants.FM175XX_OK != result):
                 ret.err_code = Constants.FM175XX_CARD_AUTH_ERR
-                logging.error( "------ M1 AUTH ERROR------\r\n" )
+                self.logger.error( "------ M1 AUTH ERROR------\r\n" )
                 return ret
 
             # Traverse all blocks

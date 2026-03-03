@@ -1,4 +1,5 @@
 from abc import ABC
+import logging
 
 class ConfigurableEntity(ABC):
     def __init__(self, config: dict, type : str):
@@ -6,6 +7,7 @@ class ConfigurableEntity(ABC):
         self.type = type
         self.config = config
         self.enabled = str(config.get("enabled", "true")).lower() == "true"
+        self.logger = logging.getLogger(f"{self.type}:{self.name}")
 
     def get_str_array_from_config(self, key: str, optional : bool) -> list[str]:
         if optional and key not in self.config:

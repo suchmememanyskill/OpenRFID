@@ -54,13 +54,15 @@ class Runtime:
                 if self.config.auto_read_mode or self.read_retries_left[i] > 0:
                     result = self.process_reader_single(reader)
                     self.read_retries_left[i] -= 1
+                    scan_result = None
 
                     if result is not None:
                         scan_result, filament = result
-                        logging.info(f"Processed tag with UID {scan_result.uid} into filament: {filament}")
+                        if filament is not None:
+                            logging.info(f"Processed tag with UID {scan_result.uid} into filament: {filament}")
 
-                        for exporter in self.exporters:
-                            exporter.export_data(scan_result, filament, reader)
+                            for exporter in self.exporters:
+                                exporter.export_data(scan_result, filament, reader)
 
                         self.read_retries_left[i] = 0
 
@@ -69,11 +71,11 @@ class Runtime:
                         self.read_retries_left[i] = 0
 
                         for exporter in self.error_exporters:
-                            exporter.export_data(None, None, reader)
+                            exporter.export_data(scan_result, None, reader)
 
             time.sleep(self.config.read_interval_seconds)
         
-    def process_reader_single(self, reader: RfidReader) -> tuple[ScanResult, GenericFilament]|None:
+    def process_reader_single(self, reader: RfidReader) -> tuple[ScanResult, GenericFilament|None]|None:
         reader.start_session()
         scan_result = reader.scan()
         reader.end_session()
@@ -87,7 +89,7 @@ class Runtime:
             logging.debug("Same tag detected as last read, skipping processing")
             return
         
-        logging.info(f"Detected tag type {scan_result.tag_type.name} with UID {scan_result.uid}")
+        logging.info(f"Detected tag type {scan_result.tag_type.name} with UID {scan_result.uid.hex().upper()}")
 
         filament = None
         if scan_result.tag_type == TagType.MifareClassic1k and isinstance(reader, MifareClassicReader):
@@ -97,7 +99,7 @@ class Runtime:
         
         if filament is None:
             logging.warning("Failed to read data from tag")
-            return
+            return (scan_result, None)
         
         logging.info(filament.pretty_text())
         

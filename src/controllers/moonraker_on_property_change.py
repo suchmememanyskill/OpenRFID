@@ -2,7 +2,6 @@ from controllers.controller import Controller
 import socket
 import json
 import time
-import logging
 import os
 
 from controllers.moonraker_controller import MoonrakerController
@@ -31,7 +30,7 @@ class MoonrakerOnPropertyChangeController(MoonrakerController):
         self.send_server_query()
 
     def on_message(self, message: dict):
-        #logging.debug(f"Received message: {message}")
+        #self.logger.debug(f"Received message: {message}")
         if message is None:
             return
         
@@ -42,7 +41,7 @@ class MoonrakerOnPropertyChangeController(MoonrakerController):
                 if klippy_state is not None:
                     self.klippy_ready = klippy_state == "ready"
                     if self.klippy_ready:
-                        logging.debug("Klippy is ready, sending subscribe command...")
+                        self.logger.debug("Klippy is ready, sending subscribe command...")
                         self.send_subscribe_command()
             elif message["id"] == MESSAGE_ID_SUBSCRIBE:
                 result = message.get("result", {})
@@ -53,14 +52,14 @@ class MoonrakerOnPropertyChangeController(MoonrakerController):
                     self.current_value = None
                     self.handle_diff(tracked_field)
                     self.current_value = tracked_field
-                    logging.info(f"Initial value for tracked field set to: {self.current_value}")
+                    self.logger.info(f"Initial value for tracked field set to: {self.current_value}")
         elif "method" in message:
             if message["method"] == "notify_klippy_disconnected" or message["method"] == "notify_klippy_shutdown":
-                logging.warning("Klippy disconnected, resetting state")
+                self.logger.warning("Klippy disconnected, resetting state")
                 self.klippy_ready = False
                 self.current_value = None
             elif message["method"] == "notify_klippy_ready":
-                logging.debug("Klippy is ready, sending subscribe command...")
+                self.logger.debug("Klippy is ready, sending subscribe command...")
                 self.klippy_ready = True
                 self.send_subscribe_command()
             elif message["method"] == "notify_status_update":
@@ -68,7 +67,7 @@ class MoonrakerOnPropertyChangeController(MoonrakerController):
                 objects = params[0] if len(params) > 0 else {}
                 tracked_object = objects.get(self.track_object, {})
                 tracked_field = tracked_object.get(self.track_field, None)
-                logging.debug(f"Received status update: {tracked_field}")
+                self.logger.debug(f"Received status update: {tracked_field}")
                 self.handle_diff(tracked_field)
 
     def send_server_query(self):
@@ -102,11 +101,11 @@ class MoonrakerOnPropertyChangeController(MoonrakerController):
                     return
                 
                 if not isinstance(new, list) or not isinstance(self.current_value, list):
-                    logging.error("Expected array value for field but got non-array")
+                    self.logger.error("Expected array value for field but got non-array")
                     return
                 
                 if len(new) != len(self.current_value):
-                    logging.warning("Array length changed, resetting state")
+                    self.logger.warning("Array length changed, resetting state")
                     self.current_value = new
                     return
             

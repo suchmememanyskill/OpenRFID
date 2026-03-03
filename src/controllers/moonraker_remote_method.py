@@ -2,7 +2,6 @@ from controllers.controller import Controller
 import socket
 import json
 import time
-import logging
 import os
 
 from controllers.moonraker_controller import MoonrakerController

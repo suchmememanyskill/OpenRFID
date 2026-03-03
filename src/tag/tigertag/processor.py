@@ -4,7 +4,6 @@ from tag.mifare_ultralight_tag_processor import MifareUltralightTagProcessor
 from tag.tag_types import TagType
 from . import constants as Constants
 import struct
-import logging
 from datetime import datetime, timezone
 
 class TigerTagProcessor(MifareUltralightTagProcessor):
@@ -25,7 +24,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
         if tag_id not in Constants.TIGERTAG_VALID_DATA_IDS:
             return None
 
-        logging.debug("TigerTag: Detected format ID 0x%08X (%s)",
+        self.logger.debug("TigerTag: Detected format ID 0x%08X (%s)",
                        tag_id, Constants.TIGERTAG_VERSION_IDS.get(tag_id, "Unknown"))
 
         return self.__parse_tigertag(scan_result, user_data, tag_id)
@@ -73,18 +72,18 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             if aspect2_label and aspect2_label not in ("Basic", "None", ""):
                 modifiers.append(aspect2_label)
 
-            logging.debug("Found TigerTag filament:")
-            logging.debug("  Tag ID: 0x%08X (%s)", tag_id, Constants.TIGERTAG_VERSION_IDS.get(tag_id, "Unknown"))
-            logging.debug("  Product ID: 0x%08X", product_id)
-            logging.debug("  Material: %s (ID: %d)", material_label, material_id)
-            logging.debug("  Brand: %s (ID: %d)", brand_name, brand_id)
-            logging.debug("  Diameter: %.2f mm (ID: %d)", diameter_mm, diameter_id)
-            logging.debug("  Aspect1: %s, Aspect2: %s", aspect1_label, aspect2_label)
-            logging.debug("  Color (ARGB): 0x%08X", argb_color)
-            logging.debug("  Measure: %d %s (%.1f g)", measure_value, unit_label, weight_grams)
-            logging.debug("  Nozzle Temp: %d-%d °C", temp_min, temp_max)
-            logging.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
-            logging.debug("  Timestamp: %d (%s)", timestamp_raw, manufacturing_date)
+            self.logger.debug("Found TigerTag filament:")
+            self.logger.debug("  Tag ID: 0x%08X (%s)", tag_id, Constants.TIGERTAG_VERSION_IDS.get(tag_id, "Unknown"))
+            self.logger.debug("  Product ID: 0x%08X", product_id)
+            self.logger.debug("  Material: %s (ID: %d)", material_label, material_id)
+            self.logger.debug("  Brand: %s (ID: %d)", brand_name, brand_id)
+            self.logger.debug("  Diameter: %.2f mm (ID: %d)", diameter_mm, diameter_id)
+            self.logger.debug("  Aspect1: %s, Aspect2: %s", aspect1_label, aspect2_label)
+            self.logger.debug("  Color (ARGB): 0x%08X", argb_color)
+            self.logger.debug("  Measure: %d %s (%.1f g)", measure_value, unit_label, weight_grams)
+            self.logger.debug("  Nozzle Temp: %d-%d °C", temp_min, temp_max)
+            self.logger.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
+            self.logger.debug("  Timestamp: %d (%s)", timestamp_raw, manufacturing_date)
 
             return GenericFilament(
                 source_processor=self.name,
@@ -107,7 +106,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             )
 
         except Exception as e:
-            logging.exception("TigerTag: Failed to parse tag data: %s", e)
+            self.logger.exception("TigerTag: Failed to parse tag data: %s", e)
             return None
 
     def __convert_to_grams(self, value: int, unit_id: int) -> float:

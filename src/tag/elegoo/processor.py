@@ -4,7 +4,6 @@ from tag.mifare_ultralight_tag_processor import MifareUltralightTagProcessor
 from tag.tag_types import TagType
 import tag.binary as binary
 from . import constants as Constants
-import logging
 
 class ElegooTagProcessor(MifareUltralightTagProcessor):
     def __init__(self, config : dict):
@@ -25,7 +24,7 @@ class ElegooTagProcessor(MifareUltralightTagProcessor):
         material = Constants.get_elegoo_material(material_subtype >> 8, material_subtype & 0xFF)
 
         if material is None:
-            logging.warning(f"ElegooTagProcessor: Unknown material subtype {material_subtype:04X}")
+            self.logger.warning(f"ElegooTagProcessor: Unknown material subtype {material_subtype:04X}")
             return None
         
         r = filament_data[0x10]

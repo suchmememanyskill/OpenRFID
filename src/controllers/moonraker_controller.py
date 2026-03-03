@@ -4,7 +4,6 @@ from abc import abstractmethod
 import json
 from typing import Any
 import os
-import logging
 import time
 
 class MoonrakerController(Controller):
@@ -20,7 +19,7 @@ class MoonrakerController(Controller):
 
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         if not os.path.exists(self.moonraker_socket_path):
-            logging.warning(f"Moonraker socket not found at {self.moonraker_socket_path}")
+            self.logger.warning(f"Moonraker socket not found at {self.moonraker_socket_path}")
             return
 
         self.socket.connect(self.moonraker_socket_path)
@@ -40,7 +39,7 @@ class MoonrakerController(Controller):
                     message = json.loads(message_data.decode("utf-8").strip())
                     self.on_message(message)
                 except json.JSONDecodeError as e:
-                    logging.error(f"Failed to decode JSON message: {e}")
+                    self.logger.error(f"Failed to decode JSON message: {e}")
                     continue
 
     def loop(self):
@@ -48,9 +47,9 @@ class MoonrakerController(Controller):
             try:
                 self.__loop_inner()
             except Exception as e:
-                logging.error(f"Error in MoonrakerController loop: {e}")
+                self.logger.error(f"Error in MoonrakerController loop: {e}")
 
-            logging.info("Retrying connection in 5 seconds...")
+            self.logger.info("Retrying connection in 5 seconds...")
             time.sleep(5)
 
     def send_message(self, message: Any):

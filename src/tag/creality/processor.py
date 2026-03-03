@@ -5,7 +5,6 @@ from tag.mifare_classic_tag_processor import MifareClassicTagProcessor, TagAuthe
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from . import constants as Constants
-import logging
 
 class CrealityTagProcessor(MifareClassicTagProcessor):
     def __init__(self, config : dict):

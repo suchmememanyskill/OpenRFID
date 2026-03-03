@@ -3,7 +3,6 @@ import jinja2
 from exporters.exporter import Exporter
 from filament.generic import GenericFilament
 from reader.scan_result import ScanResult
-import logging
 import json
 from reader.rfid_reader import RfidReader
 
@@ -60,4 +59,4 @@ class WebhookExporter(Exporter):
 
             response.raise_for_status()
         except Exception as e:
-            logging.exception(f"Failed to export data via webhook: {e}")
+            self.logger.exception(f"Failed to export data via webhook: {e}")
