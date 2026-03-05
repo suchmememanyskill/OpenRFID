@@ -49,12 +49,13 @@ class Runtime:
             return
         
         self.read_retries_left[slot] = self.config.read_retries
-        logging.info(f"Started reading tag on slot {slot} with {self.config.read_retries} retries")
+        logging.info(f"Received request to read tag on slot {slot} with {self.config.read_retries} retries")
 
     def loop(self):
         while True:
             for i, reader in enumerate(self.rfid_readers):
                 if self.config.auto_read_mode or self.read_retries_left[i] > 0:
+                    logging.debug(f"Processing reader {reader.name}, retries left: {self.read_retries_left[i]}")
                     result = self.process_reader_single(reader)
                     self.read_retries_left[i] -= 1
                     scan_result = None
@@ -66,7 +67,7 @@ class Runtime:
                                 exporter.export_data(scan_result, filament, reader)
 
                         if filament is not None:
-                            logging.info(f"Processed tag with UID {scan_result.uid.hex().upper()}")
+                            logging.info(f"Processed tag with UID {scan_result.uid.hex().upper()} from reader {reader.name}")
 
                             for exporter in self.success_exporters:
                                 exporter.export_data(scan_result, filament, reader)
