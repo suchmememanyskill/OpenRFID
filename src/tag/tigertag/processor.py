@@ -3,12 +3,14 @@ from reader.scan_result import ScanResult
 from tag.mifare_ultralight_tag_processor import MifareUltralightTagProcessor
 from tag.tag_types import TagType
 from . import constants as Constants
+from .registry import get_tigertag_registry
 import struct
 from datetime import datetime, timezone
 
 class TigerTagProcessor(MifareUltralightTagProcessor):
     def __init__(self, config: dict):
         super().__init__(config)
+        self.registry = get_tigertag_registry()
 
     def process_tag(self, scan_result: ScanResult, data: bytes) -> GenericFilament | None:
         if scan_result.tag_type != TagType.MifareUltralight:
@@ -25,7 +27,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             return None
 
         self.logger.debug("TigerTag: Detected format ID 0x%08X (%s)",
-                       tag_id, Constants.TIGERTAG_VERSION_IDS.get(tag_id, "Unknown"))
+                       tag_id, self.registry.version_ids.get(tag_id, "Unknown"))
 
         return self.__parse_tigertag(scan_result, user_data, tag_id)
 
@@ -56,24 +58,24 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
-            material_label = Constants.MATERIAL_ID_TO_LABEL.get(material_id, f"Unknown({material_id})")
-            brand_name = Constants.BRAND_ID_TO_NAME.get(brand_id, f"Unknown({brand_id})")
-            diameter_mm = Constants.DIAMETER_ID_TO_MM.get(diameter_id, 1.75)
-            aspect1_label = Constants.ASPECT_ID_TO_LABEL.get(aspect1_id, "")
-            aspect2_label = Constants.ASPECT_ID_TO_LABEL.get(aspect2_id, "")
-            unit_label = Constants.UNIT_ID_TO_LABEL.get(unit_id, "g")
+            material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
+            brand_name = self.registry.brand_ids.get(brand_id, f"Unknown({brand_id})")
+            diameter_mm = self.registry.diameter_ids.get(diameter_id, 1.75)
+            aspect1_label = self.registry.aspect_ids.get(aspect1_id, "")
+            aspect2_label = self.registry.aspect_ids.get(aspect2_id, "")
+            unit_label = self.registry.unit_ids.get(unit_id, "g")
 
             weight_grams = self.__convert_to_grams(measure_value, unit_id)
             manufacturing_date = self.__timestamp_to_date(timestamp_raw)
 
             modifiers = []
-            if aspect1_label and aspect1_label not in ("Basic", "None", ""):
+            if aspect1_label and aspect1_label not in ("Basic", "None", "", "-"):
                 modifiers.append(aspect1_label)
-            if aspect2_label and aspect2_label not in ("Basic", "None", ""):
+            if aspect2_label and aspect2_label not in ("Basic", "None", "", "-"):
                 modifiers.append(aspect2_label)
 
             self.logger.debug("Found TigerTag filament:")
-            self.logger.debug("  Tag ID: 0x%08X (%s)", tag_id, Constants.TIGERTAG_VERSION_IDS.get(tag_id, "Unknown"))
+            self.logger.debug("  Tag ID: 0x%08X (%s)", tag_id, self.registry.version_ids.get(tag_id, "Unknown"))
             self.logger.debug("  Product ID: 0x%08X", product_id)
             self.logger.debug("  Material: %s (ID: %d)", material_label, material_id)
             self.logger.debug("  Brand: %s (ID: %d)", brand_name, brand_id)
