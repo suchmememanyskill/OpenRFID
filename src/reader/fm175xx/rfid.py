@@ -479,7 +479,10 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
                 ret = Constants.FM175XX_CARD_COLL_ERR
                 break
 
-            UID += UID_part
+            if level < cascade_level - 1:
+                UID += UID_part[1:]
+            else:
+                UID += UID_part
             BCC.append(BCC_part)
 
             (ret, SAK_part) = self.__reader_a_select(level, UID_part, BCC_part)
