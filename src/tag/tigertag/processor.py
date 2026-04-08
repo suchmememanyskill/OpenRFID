@@ -59,6 +59,9 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
             material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
+            material_type = self.registry.material_type_ids.get(material_id, material_label)
+            filled_type = self.registry.filled_type_ids.get(material_id, "")
+            resolved_material_type = material_type if not filled_type else f"{material_type}-{filled_type}"
             brand_name = self.registry.brand_ids.get(brand_id, f"Unknown({brand_id})")
             diameter_mm = self.registry.diameter_ids.get(diameter_id, 1.75)
             aspect1_label = self.registry.aspect_ids.get(aspect1_id, "")
@@ -77,7 +80,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("Found TigerTag filament:")
             self.logger.debug("  Tag ID: 0x%08X (%s)", tag_id, self.registry.version_ids.get(tag_id, "Unknown"))
             self.logger.debug("  Product ID: 0x%08X", product_id)
-            self.logger.debug("  Material: %s (ID: %d)", material_label, material_id)
+            self.logger.debug("  Material: %s / %s (ID: %d)", resolved_material_type, material_label, material_id)
             self.logger.debug("  Brand: %s (ID: %d)", brand_name, brand_id)
             self.logger.debug("  Diameter: %.2f mm (ID: %d)", diameter_mm, diameter_id)
             self.logger.debug("  Aspect1: %s, Aspect2: %s", aspect1_label, aspect2_label)
@@ -90,11 +93,11 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             return GenericFilament(
                 source_processor=self.name,
                 unique_id=GenericFilament.generate_unique_id(
-                    "TigerTag", brand_name, material_label, argb_color,
+                    "TigerTag", brand_name, resolved_material_type, argb_color,
                     product_id, timestamp_raw
                 ),
                 manufacturer=brand_name,
-                type=material_label,
+                type=resolved_material_type,
                 modifiers=modifiers,
                 colors=[argb_color],
                 diameter_mm=diameter_mm,

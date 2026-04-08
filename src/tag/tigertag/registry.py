@@ -8,6 +8,8 @@ from typing import Any
 class TigerTagRegistry:
     version_ids: dict[int, str]
     material_ids: dict[int, str]
+    material_type_ids: dict[int, str]
+    filled_type_ids: dict[int, str]
     aspect_ids: dict[int, str]
     type_ids: dict[int, str]
     diameter_ids: dict[int, float]
@@ -53,6 +55,18 @@ def _load_registry() -> TigerTagRegistry:
         material_ids=_load_id_map(
             base_path / _JSON_FILES["material_ids"],
             ("name", "label", "title", "description"),
+            str,
+            {},
+        ),
+        material_type_ids=_load_id_map(
+            base_path / _JSON_FILES["material_ids"],
+            ("material_type", "name", "label", "title", "description"),
+            str,
+            {},
+        ),
+        filled_type_ids=_load_id_map(
+            base_path / _JSON_FILES["material_ids"],
+            ("filled_type",),
             str,
             {},
         ),
