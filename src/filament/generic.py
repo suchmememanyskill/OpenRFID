@@ -1,4 +1,5 @@
 import hashlib
+from .valid_materials import VALID_BASE_MATERIALS
 
 def to_rgba(argb: int) -> int:
     a = (argb >> 24) & 0xFF
@@ -48,6 +49,9 @@ class GenericFilament:
         if "GF" in self.modifiers:
             self.type += "-GF"
             self.modifiers.remove("GF")
+
+        if self.type not in VALID_BASE_MATERIALS:
+            raise ValueError(f"Invalid filament type: {self.type}")
 
     def pretty_text(self) -> str:
         modifiers = ' '.join(self.modifiers)

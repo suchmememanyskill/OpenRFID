@@ -22,6 +22,7 @@ from tag.bambu import BambuTagProcessor
 from tag.creality import CrealityTagProcessor
 from tag.elegoo import ElegooTagProcessor
 from tag.openspool import OpenspoolTagProcessor
+from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker import SnapmakerTagProcessor
 from tag.tigertag import TigerTagProcessor
 from controllers.moonraker_on_property_change import MoonrakerOnPropertyChangeController
@@ -63,6 +64,8 @@ def create_configurable_entity(key: str, config: dict) -> ConfigurableEntity:
             return TigerTagProcessor(config)
         case "elegoo_tag_processor":
             return ElegooTagProcessor(config)
+        case "qidi_tag_processor":
+            return QidiTagProcessor(config)
         case "webhook_exporter":
             return WebhookExporter(config)
         case "moonraker_remote_method":

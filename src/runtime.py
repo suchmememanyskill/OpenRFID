@@ -33,6 +33,11 @@ class Runtime:
         self.error_exporters : list[Exporter] = [x for x in cast(list[Exporter], get_entities_by_type(TYPE_EXPORTER)) if x.enabled and ExporterEvent.TAG_READ_ERROR in x.events]
         self.controllers : list[Controller] = [x for x in cast(list[Controller], get_entities_by_type(TYPE_CONTROLLER)) if x.enabled]
 
+        logging.debug(f"Tag processors: {','.join([processor.name for processor in self.tag_processors])}")
+        logging.debug(f"Success exporters: {','.join([exporter.name for exporter in self.success_exporters])}")
+        logging.debug(f"Detection exporters: {','.join([exporter.name for exporter in self.detection_exporters])}")
+        logging.debug(f"Error exporters: {','.join([exporter.name for exporter in self.error_exporters])}")
+
         #print(f"{self.success_exporters} {self.detection_exporters} {self.error_exporters}")
 
         for controller in self.controllers:
@@ -56,26 +61,37 @@ class Runtime:
             for i, reader in enumerate(self.rfid_readers):
                 if self.config.auto_read_mode or self.read_retries_left[i] > 0:
                     logging.debug(f"Processing reader {reader.name}, retries left: {self.read_retries_left[i]}")
-                    scan_result, filament, retry = self.process_reader_single(reader)
+                    try:
+                        scan_result, filament, retry = self.process_reader_single(reader)
+                    except Exception as e:
+                        logging.exception(f"Error processing reader {reader.name}: {e}")
+                        scan_result, filament, retry = None, None, False # Assume exceptions are not transient
 
-                    if not retry:
+                    if not retry: # This is either a successful or a failed read
                         self.read_retries_left[i] = 0
-                    elif self.read_retries_left[i] <= 0 and not self.config.auto_read_mode:
-                        logging.warning(f"Failed to read from reader {reader.name}, no retries left")
-                    else:
-                        self.read_retries_left[i] -= 1
-                        logging.info(f"Retrying read for reader {reader.name}, retries left: {self.read_retries_left[i]}")
-                        continue
+                        if scan_result:
+                            for exporter in self.detection_exporters:
+                                exporter.export_data(scan_result, filament, reader)
 
-                    if scan_result:
-                        for exporter in self.detection_exporters:
-                            exporter.export_data(scan_result, filament, reader)
+                        if filament and scan_result:
+                            logging.info(f"Processed tag with UID {scan_result.uid.hex().upper()}")
 
-                    if filament:
-                        logging.info(f"Processed tag with UID {scan_result.uid.hex().upper()}")
+                            for exporter in self.success_exporters:
+                                exporter.export_data(scan_result, filament, reader)
+                        else:
+                            logging.warning(f"Failed to read tag on reader {reader.name}")
 
-                        for exporter in self.success_exporters:
-                            exporter.export_data(scan_result, filament, reader)
+                            for exporter in self.error_exporters:
+                                exporter.export_data(scan_result, filament, reader)
+                    else: # This is a transient error
+                        if self.read_retries_left[i] <= 0 and not self.config.auto_read_mode:
+                            logging.warning(f"Failed to read from reader {reader.name}, no retries left")
+
+                            for exporter in self.error_exporters:
+                                exporter.export_data(scan_result, filament, reader)
+                        else:
+                            self.read_retries_left[i] -= 1
+                            logging.info(f"Retrying read for reader {reader.name}, retries left: {self.read_retries_left[i]}")
 
             time.sleep(self.config.read_interval_seconds)
         
