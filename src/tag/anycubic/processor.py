@@ -26,6 +26,10 @@ class AnycubicTagProcessor(MifareUltralightTagProcessor):
         filament_type = data[0x3C:0x4C].decode('ASCII').rstrip('\x00')
         filament_types = filament_type.replace("-", " ").split(" ")
 
+        if filament_types[0].endswith("+"):
+            filament_types[0] = filament_types[0][:-1]
+            filament_types.append("+")
+
         a = data[0x50]
         b = data[0x51]
         g = data[0x52]
@@ -45,9 +49,13 @@ class AnycubicTagProcessor(MifareUltralightTagProcessor):
         match filament_length_m:
             case 330:
                 weight_grams = 1000
+            case 247:
+                weight_grams = 750
+            case 198:
+                weight_grams = 600
             case 165:
                 weight_grams = 500
-            case 80:
+            case 82:
                 weight_grams = 250
             case _:
                 weight_grams = 1000  # Default to 1000g if unknown
