@@ -35,8 +35,7 @@ class QidiTagProcessor(MifareClassicTagProcessor):
         remaining = sector_one[3:]
 
         if remaining != bytes([0x00] * len(remaining)) or material_code == 0x00 or color_code == 0x00 or manufacturer_code == 0x00:
-            logging.warning("Data format does not match expected QIDI format, skipping tag")
-            logging.debug(f"Material code: {material_code}, Color code: {color_code}, Manufacturer code: {manufacturer_code}, Remaining: {remaining}")
+            logging.warning("Data format does not match expected QIDI format")
             return None # Not a qidi tag
         
         if material_code not in MATERIALS:
