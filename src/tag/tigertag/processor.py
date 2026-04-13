@@ -72,10 +72,9 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             manufacturing_date = self.__timestamp_to_date(timestamp_raw)
 
             modifiers = []
-            if aspect1_label and aspect1_label not in ("Basic", "None", "", "-"):
-                modifiers.append(aspect1_label)
-            if aspect2_label and aspect2_label not in ("Basic", "None", "", "-"):
-                modifiers.append(aspect2_label)
+            for aspect_label in (aspect1_label, aspect2_label):
+                if aspect_label and aspect_label not in ("None", "", "-"):
+                    modifiers.append(aspect_label)
 
             self.logger.debug("Found TigerTag filament:")
             self.logger.debug("  Tag ID: 0x%08X (%s)", tag_id, self.registry.version_ids.get(tag_id, "Unknown"))
