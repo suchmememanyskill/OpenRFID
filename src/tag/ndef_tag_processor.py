@@ -15,7 +15,9 @@ NDEF_PARAMETER_ERR = -2
 NDEF_NOT_FOUND_ERR = -3
 
 class NdefRecord:
-    def __init__(self, mime_type: str, payload: bytes):
+    def __init__(self, payload: bytes, tnf: int, record_type: str = "", mime_type: str = ""):
+        self.tnf = tnf
+        self.type = record_type
         self.mime_type = mime_type
         self.payload = payload
 
@@ -133,7 +135,7 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
                         if ndef_offset + type_len + id_len + payload_len > len(ndef_data):
                             break
 
-                        mime_type = ndef_data[ndef_offset:ndef_offset + type_len].decode('ascii', errors='ignore')
+                        record_type = ndef_data[ndef_offset:ndef_offset + type_len].decode('ascii', errors='ignore')
                         ndef_offset += type_len
 
                         if id_len > 0:
@@ -143,8 +145,11 @@ class NdefTagProcessor(MifareUltralightTagProcessor):
                         ndef_offset += payload_len
 
                         if tnf == 0x02:
-                            records.append(NdefRecord(mime_type, payload))
-                            self.logger.debug(f"NDEF record found: mime_type='{mime_type}', payload_len={len(payload)}")
+                            records.append(NdefRecord(payload, tnf, record_type=record_type, mime_type=record_type))
+                            self.logger.debug(f"NDEF MIME record found: mime_type='{record_type}', payload_len={len(payload)}")
+                        elif tnf == 0x01 and record_type == 'U':
+                            records.append(NdefRecord(payload, tnf, record_type=record_type))
+                            self.logger.debug(f"NDEF URI record found: payload_len={len(payload)}")
                 else:
                     data_io.seek(tlv_len, 1)
 
