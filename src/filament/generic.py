@@ -25,7 +25,8 @@ class GenericFilament:
                  bed_temp_c: float,
                  drying_temp_c: float,
                  drying_time_hours: float,
-                 manufacturing_date: str # ISO 8601 date string
+                 manufacturing_date: str, # ISO 8601 date string
+                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -41,6 +42,7 @@ class GenericFilament:
         self.drying_temp_c = drying_temp_c
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
+        self.td = td
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -67,7 +69,8 @@ class GenericFilament:
             f"- Hotend Temp: {self.hotend_min_temp_c:.1f}C - {self.hotend_max_temp_c:.1f}C",
             f"- Bed Temp: {self.bed_temp_c:.1f}C",
             f"- Drying: {self.drying_temp_c:.1f}C for {self.drying_time_hours:.1f} hours",
-            f"- Manufactured on: {self.manufacturing_date}"
+            f"- Manufactured on: {self.manufacturing_date}",
+            f"- TD: {self.td:.1f} mm"
         ])
 
     @property
@@ -98,7 +101,8 @@ class GenericFilament:
             "bed_temp_c": self.bed_temp_c,
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
-            "manufacturing_date": self.manufacturing_date
+            "manufacturing_date": self.manufacturing_date,
+            "td": self.td
         }
     
     @staticmethod
