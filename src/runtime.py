@@ -28,17 +28,11 @@ class Runtime:
 
         self.rfid_readers : list[RfidReader] = [x for x in cast(list[RfidReader], get_entities_by_type(TYPE_RFID_READER)) if x.enabled]
         self.tag_processors : list[TagProcessor] = [x for x in cast(list[TagProcessor], get_entities_by_type(TYPE_TAG_PROCESSOR)) if x.enabled]
-        self.success_exporters : list[Exporter] = [x for x in cast(list[Exporter], get_entities_by_type(TYPE_EXPORTER)) if x.enabled and ExporterEvent.TAG_READ in x.events]
-        self.detection_exporters : list[Exporter] = [x for x in cast(list[Exporter], get_entities_by_type(TYPE_EXPORTER)) if x.enabled and ExporterEvent.TAG_DETECTED in x.events]
-        self.error_exporters : list[Exporter] = [x for x in cast(list[Exporter], get_entities_by_type(TYPE_EXPORTER)) if x.enabled and ExporterEvent.TAG_READ_ERROR in x.events]
+        self.exporters : list[Exporter] = [x for x in cast(list[Exporter], get_entities_by_type(TYPE_EXPORTER)) if x.enabled]
         self.controllers : list[Controller] = [x for x in cast(list[Controller], get_entities_by_type(TYPE_CONTROLLER)) if x.enabled]
 
         logging.debug(f"Tag processors: {','.join([processor.name for processor in self.tag_processors])}")
-        logging.debug(f"Success exporters: {','.join([exporter.name for exporter in self.success_exporters])}")
-        logging.debug(f"Detection exporters: {','.join([exporter.name for exporter in self.detection_exporters])}")
-        logging.debug(f"Error exporters: {','.join([exporter.name for exporter in self.error_exporters])}")
-
-        #print(f"{self.success_exporters} {self.detection_exporters} {self.error_exporters}")
+        logging.debug(f"Exporters: {','.join([exporter.name for exporter in self.exporters])}")
 
         for controller in self.controllers:
             controller.runtime = self # type: ignore
@@ -47,6 +41,11 @@ class Runtime:
         self.mifare_ultralight_processors = [processor for processor in self.tag_processors if isinstance(processor, MifareUltralightTagProcessor)]
 
         self.read_retries_left = [0] * len(self.rfid_readers)
+
+    def _notify_exporters(self, scan: ScanResult|None, filament: GenericFilament|None, reader: RfidReader, event: ExporterEvent):
+        for exporter in self.exporters:
+            if exporter.has_event(event):
+                exporter.export_data(scan, filament, reader)
 
     def start_reading_tag(self, slot: int):
         if slot < 0 or slot >= len(self.rfid_readers):
@@ -59,42 +58,37 @@ class Runtime:
     def loop(self):
         while True:
             for i, reader in enumerate(self.rfid_readers):
-                if self.config.auto_read_mode or self.read_retries_left[i] > 0:
-                    logging.debug(f"Processing reader {reader.name}, retries left: {self.read_retries_left[i]}")
-                    try:
-                        scan_result, filament, retry = self.process_reader_single(reader)
-                    except Exception as e:
-                        logging.exception(f"Error processing reader {reader.name}: {e}")
-                        scan_result, filament, retry = None, None, False # Assume exceptions are not transient
+                if not self.config.auto_read_mode and self.read_retries_left[i] <= 0:
+                    continue
 
-                    if not retry: # This is either a successful or a failed read
-                        self.read_retries_left[i] = 0
-                        if scan_result:
-                            for exporter in self.detection_exporters:
-                                exporter.export_data(scan_result, filament, reader)
+                logging.debug(f"Processing reader {reader.name}, retries left: {self.read_retries_left[i]}")
+                try:
+                    scan_result, filament, retry = self.process_reader_single(reader)
+                except Exception as e:
+                    logging.exception(f"Error processing reader {reader.name}: {e}")
+                    scan_result, filament, retry = None, None, False # Assume exceptions are not transient
 
-                        if filament and scan_result:
-                            logging.info(f"Processed tag with UID {scan_result.uid.hex().upper()}")
-
-                            for exporter in self.success_exporters:
-                                exporter.export_data(scan_result, filament, reader)
-                        else:
-                            logging.warning(f"Failed to read tag on reader {reader.name}")
-
-                            for exporter in self.error_exporters:
-                                exporter.export_data(scan_result, filament, reader)
-                    else: # This is a transient error
-                        if self.read_retries_left[i] <= 0 and not self.config.auto_read_mode:
-                            logging.warning(f"Failed to read from reader {reader.name}, no retries left")
-
-                            for exporter in self.error_exporters:
-                                exporter.export_data(scan_result, filament, reader)
-                        else:
-                            self.read_retries_left[i] -= 1
-                            logging.info(f"Retrying read for reader {reader.name}, retries left: {self.read_retries_left[i]}")
+                if filament:
+                    logging.info(f"Successfully read tag with UID {scan_result.uid.hex().upper()} on reader {reader.name}")
+                    self._notify_exporters(scan_result, filament, reader, ExporterEvent.TAG_READ)
+                    self.read_retries_left[i] = 0
+                elif scan_result:
+                    logging.info(f"Detected tag with UID {scan_result.uid.hex().upper()} on reader {reader.name} but failed to read data")
+                    self._notify_exporters(scan_result, None, reader, ExporterEvent.TAG_PARSE_ERROR)
+                    self.read_retries_left[i] = 0
+                elif self.config.auto_read_mode: # Auto-mode
+                    # TODO: if tag was previously detected, it should at least once notify exporters about tag not present
+                    logging.info(f"No tag detected on reader {reader.name}, but auto read mode is enabled, will retry")
+                elif not retry: # Fatal non-retrable error
+                    logging.info(f"No tag detected on reader {reader.name}")
+                    self._notify_exporters(None, None, reader, ExporterEvent.TAG_NOT_PRESENT)
+                    self.read_retries_left[i] = 0
+                else: # Transient error
+                    self.read_retries_left[i] -= 1
+                    logging.info(f"No tag detected on reader {reader.name}, will retry, retries left: {self.read_retries_left[i]}")
 
             time.sleep(self.config.read_interval_seconds)
-        
+
     def process_reader_single(self, reader: RfidReader) -> tuple[ScanResult|None, GenericFilament|None, bool]:
         reader.start_session()
         scan_result = reader.scan()

@@ -8,8 +8,8 @@ from enum import Enum
 
 class ExporterEvent(Enum):
     TAG_READ = "tag_read"
-    TAG_DETECTED = "tag_detected"
-    TAG_READ_ERROR = "tag_read_error"
+    TAG_PARSE_ERROR = "tag_parse_error"
+    TAG_NOT_PRESENT = "tag_not_present"
 
 class Exporter(ConfigurableEntity):
     def __init__(self, config: dict):
@@ -22,6 +22,10 @@ class Exporter(ConfigurableEntity):
 
         if not self.events:
             self.logger.error(f"Exporter '{self.name}' must have at least one event specified in the configuration")
+
+    def has_event(self, event: ExporterEvent) -> bool:
+        """Evaluates whether this exporter has the specified event configured."""
+        return event in self.events
 
     @abstractmethod
     def export_data(self, scan: ScanResult|None, filament: GenericFilament|None, reader : RfidReader):
