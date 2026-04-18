@@ -15,9 +15,6 @@ class AnycubicTagProcessor(MifareUltralightTagProcessor):
         if scan_result.tag_type != TagType.MifareUltralight:
             raise ValueError("AnycubicTagProcessor can only process Mifare Ultralight tags")
         
-        if len(data) != 192:
-            return None
-        
         if data[0x10:0x14] != b'\x7B\x00\x65\x00':
             return None
         
