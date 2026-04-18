@@ -68,6 +68,9 @@ class Runtime:
                     logging.exception(f"Error processing reader {reader.name}: {e}")
                     scan_result, filament, retry = None, None, False # Assume exceptions are not transient
 
+                if retry and self.read_retries_left[i] <= 1:
+                    retry = False # Don't allow retry if this is the last retry left
+
                 if filament:
                     logging.info(f"Successfully read tag with UID {scan_result.uid.hex().upper()} on reader {reader.name}")
                     self._notify_exporters(scan_result, filament, reader, ExporterEvent.TAG_READ)
