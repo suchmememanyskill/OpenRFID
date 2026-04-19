@@ -1,0 +1,16 @@
+source_processor: ElegooTagProcessor
+unique_id: c6395d3cd860f85da511b1bf27e1103444ba88c3ed4eb7212d55bf3d96d247ce
+manufacturer: Elegoo
+type: PLA
+modifiers: []
+colors:
+  - 0xFFFF0000
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 190
+hotend_max_temp_c: 230
+bed_temp_c: 0
+drying_temp_c: 0
+drying_time_hours: 0
+manufacturing_date: "0001-01-01"
+td: 0.0

@@ -1,4 +1,7 @@
 requests
 jinja2
 spidev
+cryptography
+pytest
+PyYAML
 # libgpiod 1.6.4

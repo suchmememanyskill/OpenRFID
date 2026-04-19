@@ -1,0 +1,17 @@
+source_processor: BambuTagProcessor
+unique_id: 016f37d1d7e9a1a5ad9dedb96e5f7160be4e4d9502776f80ae3b6ef8cdb97e61
+manufacturer: Bambu
+type: PETG
+modifiers:
+  - Basic
+colors:
+  - 0xFFD6001C
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 220
+hotend_max_temp_c: 270
+bed_temp_c: 0
+drying_temp_c: 65
+drying_time_hours: 8
+manufacturing_date: "2023-07-31"
+td: 0.0

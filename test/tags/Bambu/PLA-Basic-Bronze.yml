@@ -1,0 +1,17 @@
+source_processor: BambuTagProcessor
+unique_id: c1b833757271b2b5c6a8d7f02bf4ec5c9ca6bbd4211d64c93e5ebf4800312587
+manufacturer: Bambu
+type: PLA
+modifiers:
+  - Basic
+colors:
+  - 0xFF847D48
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 190
+hotend_max_temp_c: 230
+bed_temp_c: 0
+drying_temp_c: 55
+drying_time_hours: 8
+manufacturing_date: "2025-02-15"
+td: 0.0
