@@ -10,25 +10,33 @@ class SpooleaseTagProcessor(NdefTagProcessor):
     def __init__(self, config: dict):
         super().__init__(config)
 
-    def process_ndef(self, scan_result: ScanResult, ndef_records: list[NdefRecord]) -> GenericFilament | None:
+    def process_ndef(
+        self, scan_result: ScanResult, ndef_records: list[NdefRecord]
+    ) -> GenericFilament | None:
         for record in ndef_records:
             if record.tnf == 0x01 and record.type == "U":
                 filament = self.__parse_spoolease_payload(record.payload)
                 return filament
-
         return None
 
     def __parse_spoolease_payload(self, payload: bytes) -> GenericFilament | None:
         if payload is None or not isinstance(payload, (bytes, bytearray)):
-            self.logger.error("SpoolEase payload parsing failed: Invalid payload parameter")
+            self.logger.error(
+                "SpoolEase payload parsing failed: Invalid payload parameter"
+            )
             return None
 
         try:
             url = self.__decode_uri_payload(payload)
             parsed = urllib.parse.urlparse(url)
 
-            if parsed.netloc.lower() != "tag.spoolease.io" or not parsed.path.startswith("/S1"):
-                self.logger.error("SpoolEase payload parsing failed: Unsupported URL '%s'", url)
+            if (
+                parsed.netloc.lower() != "tag.spoolease.io"
+                or not parsed.path.startswith("/S1")
+            ):
+                self.logger.error(
+                    "SpoolEase payload parsing failed: Unsupported URL '%s'", url
+                )
                 return None
 
             query = urllib.parse.parse_qs(parsed.query, keep_blank_values=False)
@@ -44,7 +52,9 @@ class SpooleaseTagProcessor(NdefTagProcessor):
             weight_grams = self.__parse_optional_int(query, "WL", 1000)
 
             if hotend_max_temp_c < hotend_min_temp_c:
-                self.logger.error("SpoolEase payload parsing failed: Invalid temperature values")
+                self.logger.error(
+                    "SpoolEase payload parsing failed: Invalid temperature values"
+                )
                 return None
 
             colors = self.__parse_colors(color_field)
@@ -52,11 +62,15 @@ class SpooleaseTagProcessor(NdefTagProcessor):
 
             bed_temp_c = extra_data.bed_temp_c if extra_data is not None else 0.0
             drying_temp_c = extra_data.drying_temp_c if extra_data is not None else 0.0
-            drying_time_hours = extra_data.drying_time_hours if extra_data is not None else 0.0
+            drying_time_hours = (
+                extra_data.drying_time_hours if extra_data is not None else 0.0
+            )
 
             return GenericFilament(
                 source_processor=self.name,
-                unique_id=GenericFilament.generate_unique_id("SpoolEase", brand, material, subtype, *colors, weight_grams),
+                unique_id=GenericFilament.generate_unique_id(
+                    "SpoolEase", brand, material, subtype, *colors, weight_grams
+                ),
                 manufacturer=brand,
                 type=material,
                 modifiers=[subtype] if subtype else [],
@@ -91,7 +105,9 @@ class SpooleaseTagProcessor(NdefTagProcessor):
             raise ValueError(f"Missing required field '{key}'")
         return int(values[0])
 
-    def __parse_optional_int(self, query: dict[str, list[str]], key: str, default: int) -> int:
+    def __parse_optional_int(
+        self, query: dict[str, list[str]], key: str, default: int
+    ) -> int:
         values = query.get(key)
         if not values or values[0] == "":
             return default
