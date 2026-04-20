@@ -14,8 +14,7 @@ class SpooleaseTagProcessor(NdefTagProcessor):
         for record in ndef_records:
             if record.tnf == 0x01 and record.type == "U":
                 filament = self.__parse_spoolease_payload(record.payload)
-                if filament is not None:
-                    return filament
+                return filament
 
         return None
 
