@@ -117,7 +117,7 @@ class BambuTagProcessor(MifareClassicTagProcessor):
         return GenericFilament(
             source_processor=self.name,
             unique_id=GenericFilament.generate_unique_id("Bambu Lab", filament_type, detailed_type, argb_color, production_datetime),
-            manufacturer="Bambu Lab",
+            manufacturer="Bambu",
             type=filament_type,
             modifiers=[filament_modifier] if len(filament_modifier) > 0 and filament_modifier != filament_type else [],
             colors=colors,

@@ -1,0 +1,17 @@
+source_processor: SnapmakerTagProcessor
+unique_id: 3d2a57eddd80e9b53e81ff9b846030652851186f122c498b0d4e9fca1464fcbc
+manufacturer: Snapmaker
+type: PLA
+modifiers:
+  - SnapSpeed
+colors:
+  - 0xFFF4C032
+diameter_mm: 1.75
+weight_grams: 500
+hotend_min_temp_c: 190
+hotend_max_temp_c: 230
+bed_temp_c: 60
+drying_temp_c: 55
+drying_time_hours: 6
+manufacturing_date: "2026-01-01"
+td: 0.0

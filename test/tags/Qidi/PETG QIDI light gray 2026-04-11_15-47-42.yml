@@ -1,0 +1,16 @@
+source_processor: QidiTagProcessor
+unique_id: 1a4d9924295768b8ec21237423c316eef7aa38db10775f899ec43a62bfd6b06e
+manufacturer: QIDI
+type: PETG
+modifiers: []
+colors:
+  - 0x00898F9B
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 0
+hotend_max_temp_c: 0
+bed_temp_c: 0
+drying_temp_c: 0
+drying_time_hours: 0
+manufacturing_date: "0001-01-01"
+td: 0.0

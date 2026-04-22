@@ -56,6 +56,16 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             dry_temp = user_data[Constants.OFF_DRY_TEMP]
             dry_time = user_data[Constants.OFF_DRY_TIME]
 
+            bed_temp_min = user_data[Constants.OFF_BED_TEMP_MIN]
+            bed_temp_max = user_data[Constants.OFF_BED_TEMP_MAX]
+
+            # TD (Transmission Distance) — 2-byte big-endian uint16, value/10 = mm
+            td_raw = 0
+            td_mm = 0.0
+            if len(user_data) > Constants.OFF_TD + 1:
+                td_raw = struct.unpack_from('>H', user_data, Constants.OFF_TD)[0]
+                td_mm = td_raw / 10.0
+
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
             material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
@@ -87,6 +97,8 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("  Measure: %d %s (%.1f g)", measure_value, unit_label, weight_grams)
             self.logger.debug("  Nozzle Temp: %d-%d °C", temp_min, temp_max)
             self.logger.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
+            self.logger.debug("  Bed Temp: %d-%d °C", bed_temp_min, bed_temp_max)
+            self.logger.debug("  TD: raw=%d → %.1f mm", td_raw, td_mm)
             self.logger.debug("  Timestamp: %d (%s)", timestamp_raw, manufacturing_date)
 
             return GenericFilament(
@@ -107,6 +119,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
                 drying_temp_c=float(dry_temp),
                 drying_time_hours=float(dry_time),
                 manufacturing_date=manufacturing_date,
+                td=td_mm,
             )
 
         except Exception as e:

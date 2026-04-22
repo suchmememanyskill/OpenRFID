@@ -1,0 +1,17 @@
+source_processor: TigerTagProcessor
+unique_id: 2a483456b16856c9a873157dfb6232a32edbc499738e9a78bc8144119ecf9eb7
+manufacturer: ELEGOO
+type: PLA
+modifiers:
+  - Basic
+colors:
+  - 0xFFBCBCBC
+diameter_mm: 1.75
+weight_grams: 1000.0
+hotend_min_temp_c: 190.0
+hotend_max_temp_c: 240.0
+bed_temp_c: 0.0
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+manufacturing_date: "2026-04-03"
+td: 0.0

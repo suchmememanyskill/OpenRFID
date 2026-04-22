@@ -1,0 +1,17 @@
+source_processor: CrealityTagProcessor
+unique_id: 140604510c2ad696b6c16f3d87665da6cf831fcf575a16ea39d2aec04b5e9f0d
+manufacturer: Creality
+type: PLA
+modifiers:
+  - Hyper
+colors:
+  - 0xFF6667AB
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 190.0
+hotend_max_temp_c: 240.0
+bed_temp_c: 50.0
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+manufacturing_date: "2025-00-27"
+td: 0.0

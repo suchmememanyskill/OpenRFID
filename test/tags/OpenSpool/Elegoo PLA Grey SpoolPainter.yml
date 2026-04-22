@@ -1,0 +1,16 @@
+source_processor: OpenspoolTagProcessor
+unique_id: 5b21a7d69f407480891f4f8cbb49a6d990611c37342d3cafe21e233c9424fb77
+manufacturer: Elegoo
+type: PLA
+modifiers: []
+colors:
+  - 0xFFA5A5A5
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 200
+hotend_max_temp_c: 230
+bed_temp_c: 60.0
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+manufacturing_date: "0001-01-01"
+td: 0.0
