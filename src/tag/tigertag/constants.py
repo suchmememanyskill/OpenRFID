@@ -22,6 +22,11 @@ OFF_BED_TEMP_MAX = 31
 OFF_TIMESTAMP = 32
 OFF_TD = 44
 OFF_METADATA = 48
+# The 32-byte metadata region is split into a 4-byte emoji slot followed
+# by a 28-byte UTF-8 custom message. The emoji encoding is not well-defined
+# across writers so the parser only reads the message portion.
+OFF_MESSAGE = OFF_METADATA + 4
+MESSAGE_LENGTH = 28
 OFF_SIGNATURE = 80
 
 MIN_DATA_LENGTH = 96
