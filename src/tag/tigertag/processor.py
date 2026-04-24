@@ -68,6 +68,19 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
+            # Custom message: a UTF-8 text region inside the 32-byte metadata
+            # block. The first 4 bytes of the metadata block are reserved by
+            # the TigerTag spec for an emoji glyph, but the precise emoji
+            # encoding is not well-defined across writers, so we skip them
+            # and only expose the message portion (see Constants.OFF_MESSAGE).
+            message = ""
+            if len(user_data) >= Constants.OFF_MESSAGE + Constants.MESSAGE_LENGTH:
+                raw_msg = user_data[Constants.OFF_MESSAGE:Constants.OFF_MESSAGE + Constants.MESSAGE_LENGTH]
+                try:
+                    message = raw_msg.rstrip(b'\x00').decode('utf-8', errors='replace').strip()
+                except Exception:
+                    message = ""
+
             material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
             material_type = self.registry.material_type_ids.get(material_id, material_label)
             filled_type = self.registry.filled_type_ids.get(material_id, "")
@@ -99,6 +112,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
             self.logger.debug("  Bed Temp: %d-%d °C", bed_temp_min, bed_temp_max)
             self.logger.debug("  TD: raw=%d → %.1f mm", td_raw, td_mm)
+            self.logger.debug("  Message: %r", message)
             self.logger.debug("  Timestamp: %d (%s)", timestamp_raw, manufacturing_date)
 
             return GenericFilament(
@@ -115,11 +129,13 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
                 weight_grams=weight_grams,
                 hotend_min_temp_c=float(temp_min),
                 hotend_max_temp_c=float(temp_max),
-                bed_temp_c=0.0,
+                bed_temp_c=float(bed_temp_min),
+                bed_temp_max_c=float(bed_temp_max),
                 drying_temp_c=float(dry_temp),
                 drying_time_hours=float(dry_time),
                 manufacturing_date=manufacturing_date,
                 td=td_mm,
+                message=message,
             )
 
         except Exception as e:
