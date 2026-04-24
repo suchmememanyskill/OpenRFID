@@ -24,6 +24,7 @@ from tag.elegoo import ElegooTagProcessor
 from tag.openspool import OpenspoolTagProcessor
 from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker import SnapmakerTagProcessor
+from tag.spoolease import SpooleaseTagProcessor
 from tag.tigertag import TigerTagProcessor
 from controllers.moonraker_on_property_change import MoonrakerOnPropertyChangeController
 
@@ -58,6 +59,8 @@ def create_configurable_entity(key: str, config: dict) -> ConfigurableEntity:
             return CrealityTagProcessor(config)
         case "openspool_tag_processor":
             return OpenspoolTagProcessor(config)
+        case "spoolease_tag_processor":
+            return SpooleaseTagProcessor(config)
         case "snapmaker_tag_processor":
             return SnapmakerTagProcessor(config)
         case "tigertag_tag_processor":
