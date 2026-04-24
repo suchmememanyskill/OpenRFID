@@ -1,0 +1,17 @@
+bed_temp_c: 0.0
+colors:
+- 0xFF3E2B2E
+diameter_mm: 1.75
+drying_temp_c: 50.0
+drying_time_hours: 6.0
+hotend_max_temp_c: 240.0
+hotend_min_temp_c: 200.0
+manufacturer: Sunlu
+manufacturing_date: '2025-09-28'
+modifiers:
+- Basic
+source_processor: TigerTagProcessor
+td: 0.0
+type: PLA
+unique_id: b537b06ab1f153b9176caa3cb12492d87094703848da8e682f242c052bdf940f
+weight_grams: 1000.0

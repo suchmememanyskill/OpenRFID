@@ -1,0 +1,17 @@
+bed_temp_c: 0.0
+colors:
+- 0xFFFAFAFA
+diameter_mm: 1.75
+drying_temp_c: 50.0
+drying_time_hours: 4.0
+hotend_max_temp_c: 250.0
+hotend_min_temp_c: 190.0
+manufacturer: Rosa3D
+manufacturing_date: '2025-11-12'
+modifiers:
+- Basic
+source_processor: TigerTagProcessor
+td: 0.0
+type: PLA
+unique_id: ca98c88138a8c8f300f07c240dc834677e59656f983b34b8c9c8d8c641bbdec1
+weight_grams: 1000.0

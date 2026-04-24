@@ -1,0 +1,18 @@
+
+bed_temp_c: 0.0
+colors:
+- 0xFF141618
+diameter_mm: 1.75
+drying_temp_c: 60.0
+drying_time_hours: 8.0
+hotend_max_temp_c: 260.0
+hotend_min_temp_c: 230.0
+manufacturer: R3D
+manufacturing_date: '2025-07-14'
+modifiers:
+- Carbon
+source_processor: TigerTagProcessor
+td: 0.0
+type: PETG-CF
+unique_id: f97ed8a8deccab7724f6b498c41a0b18c8e9250307b5f332a34055e7308f47a4
+weight_grams: 1000.0

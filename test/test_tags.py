@@ -212,9 +212,7 @@ def _assert_expected_matches_actual(expected, actual, path: str = "root") -> Non
 def test_tag_processor_fixture_matches_expected_output(fixture_path: Path) -> None:
     folder_name = fixture_path.parent.name
     expected_path = fixture_path.with_suffix(".yml")
-    processor_fixture = _get_processor_fixture(folder_name)
-
-    assert expected_path.exists(), f"Missing expected output file for {fixture_path.name}"
+    processor_fixture = _get_processor_fixture(folder_name)    
 
     processor = processor_fixture["build_processor"]()
     filament = processor.process_tag(
@@ -222,6 +220,10 @@ def test_tag_processor_fixture_matches_expected_output(fixture_path: Path) -> No
         fixture_path.read_bytes(),
     )
 
+    #if not expected_path.exists():
+    #    yaml.safe_dump(filament.to_dict(), expected_path.open("w", encoding="utf-8"))
+
+    assert expected_path.exists(), f"Missing expected output file for {fixture_path.name}"
     assert filament is not None, f"{folder_name} returned no filament for {fixture_path.name}"
 
     expected = yaml.safe_load(expected_path.read_text(encoding="utf-8"))
