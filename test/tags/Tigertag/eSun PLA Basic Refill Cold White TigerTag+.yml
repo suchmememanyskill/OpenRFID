@@ -1,4 +1,4 @@
-bed_temp_c: 0.0
+bed_temp_c: 45.0
 colors:
 - 0xFFDDE5ED
 diameter_mm: 1.75
