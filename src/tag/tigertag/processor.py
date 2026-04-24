@@ -68,11 +68,11 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
-            # Custom message: a UTF-8 text region inside the 32-byte metadata
-            # block. The first 4 bytes of the metadata block are reserved by
-            # the TigerTag spec for an emoji glyph, but the precise emoji
-            # encoding is not well-defined across writers, so we skip them
-            # and only expose the message portion (see Constants.OFF_MESSAGE).
+            # Custom message: the 32-byte metadata block is exposed verbatim as
+            # a UTF-8 string. The TigerTag spec reserves the first few bytes
+            # for an optional emoji glyph, but the encoding is not well-defined
+            # across writers (and most writers omit it), so we hand the whole
+            # region to the application untouched.
             message = ""
             if len(user_data) >= Constants.OFF_MESSAGE + Constants.MESSAGE_LENGTH:
                 raw_msg = user_data[Constants.OFF_MESSAGE:Constants.OFF_MESSAGE + Constants.MESSAGE_LENGTH]
