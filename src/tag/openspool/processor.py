@@ -44,7 +44,7 @@ class OpenspoolTagProcessor(NdefTagProcessor):
             main_type = data.get('type', 'PLA').upper()
             subtype = data.get('subtype', '')
             color_hex = self.__parse_color_hex(data.get('color_hex', 'FFFFFF'))
-            alpha = max(0x00, min(0xFF, int(data.get('alpha', 255))))
+            alpha = max(0x00, min(0xFF, int(data.get('alpha', 'FF'), 16)))
             color_argb = (alpha << 24) | color_hex
 
             try:
