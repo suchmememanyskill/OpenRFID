@@ -71,6 +71,11 @@ class Runtime:
                 if retry and self.read_retries_left[i] <= 1:
                     retry = False # Don't allow retry if this is the last retry left
 
+                if retry:
+                    self.read_retries_left[i] -= 1
+                    logging.info(f"No tag detected on reader {reader.name}, will retry, retries left: {self.read_retries_left[i]}")
+                    continue
+                
                 if filament:
                     logging.info(f"Successfully read tag with UID {scan_result.uid.hex().upper()} on reader {reader.name}")
                     self._notify_exporters(scan_result, filament, reader, ExporterEvent.TAG_READ)
@@ -82,13 +87,10 @@ class Runtime:
                 elif self.config.auto_read_mode: # Auto-mode
                     # TODO: if tag was previously detected, it should at least once notify exporters about tag not present
                     logging.info(f"No tag detected on reader {reader.name}, but auto read mode is enabled, will retry")
-                elif not retry: # Fatal non-retrable error
+                else: # Fatal non-retrable error
                     logging.info(f"No tag detected on reader {reader.name}")
                     self._notify_exporters(None, None, reader, ExporterEvent.TAG_NOT_PRESENT)
                     self.read_retries_left[i] = 0
-                else: # Transient error
-                    self.read_retries_left[i] -= 1
-                    logging.info(f"No tag detected on reader {reader.name}, will retry, retries left: {self.read_retries_left[i]}")
 
             time.sleep(self.config.read_interval_seconds)
 
