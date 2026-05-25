@@ -22,6 +22,7 @@ from tag.bambu import BambuTagProcessor
 from tag.creality import CrealityTagProcessor
 from tag.elegoo import ElegooTagProcessor
 from tag.openspool import OpenspoolTagProcessor
+from tag.filaman import FilamanTagProcessor
 from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker import SnapmakerTagProcessor
 from tag.tigertag import TigerTagProcessor
@@ -58,6 +59,8 @@ def create_configurable_entity(key: str, config: dict) -> ConfigurableEntity:
             return CrealityTagProcessor(config)
         case "openspool_tag_processor":
             return OpenspoolTagProcessor(config)
+        case "filaman_tag_processor":
+            return FilamanTagProcessor(config)
         case "snapmaker_tag_processor":
             return SnapmakerTagProcessor(config)
         case "tigertag_tag_processor":

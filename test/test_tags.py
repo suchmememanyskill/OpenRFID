@@ -17,6 +17,7 @@ from tag.bambu.processor import BambuTagProcessor
 from tag.creality.processor import CrealityTagProcessor
 from tag.elegoo.processor import ElegooTagProcessor
 from tag.openspool.processor import OpenspoolTagProcessor
+from tag.filaman.processor import FilamanTagProcessor
 from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker.processor import SnapmakerTagProcessor
 from tag.tag_processor import TagProcessor
@@ -98,6 +99,14 @@ def _build_openspool_processor() -> TagProcessor:
     processor.enabled = True
     return processor
 
+def _build_filaman_processor() -> TagProcessor:
+    processor = FilamanTagProcessor(
+        {
+            "__name": "FilamanTagProcessor",
+        }
+    )
+    processor.enabled = True
+    return processor
 
 def _build_qidi_processor() -> TagProcessor:
     processor = QidiTagProcessor(
@@ -149,6 +158,10 @@ PROCESSOR_FIXTURES = {
     },
     "OpenSpool": {
         "build_processor": _build_openspool_processor,
+        "tag_type": TagType.MifareUltralight,
+    },
+    "FilaMan": {
+        "build_processor": _build_filaman_processor,
         "tag_type": TagType.MifareUltralight,
     },
     "Qidi": {
