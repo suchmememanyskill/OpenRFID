@@ -108,7 +108,7 @@ class Runtime:
             logging.debug("Same tag detected as last read, skipping processing")
             return None, None, False
         
-        logging.info(f"Detected tag type {scan_result.tag_type.name} with UID {scan_result.uid.hex().upper()}")
+        logging.info(scan_result.pretty_text())
 
         filament = None
         retry = False
