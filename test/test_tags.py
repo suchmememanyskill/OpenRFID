@@ -20,6 +20,7 @@ from tag.openspool.processor import OpenspoolTagProcessor
 from tag.filaman.processor import FilamanTagProcessor
 from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker.processor import SnapmakerTagProcessor
+from tag.spoolease.processor import SpooleaseTagProcessor
 from tag.tag_processor import TagProcessor
 from tag.tag_types import TagType
 from tag.tigertag.processor import TigerTagProcessor
@@ -118,6 +119,16 @@ def _build_qidi_processor() -> TagProcessor:
     return processor
 
 
+def _build_spoolease_processor() -> TagProcessor:
+    processor = SpooleaseTagProcessor(
+        {
+            "__name": "SpooleaseTagProcessor",
+        }
+    )
+    processor.enabled = True
+    return processor
+
+
 def _build_snapmaker_processor() -> TagProcessor:
     processor = SnapmakerTagProcessor(
         {
@@ -167,6 +178,10 @@ PROCESSOR_FIXTURES = {
     "Qidi": {
         "build_processor": _build_qidi_processor,
         "tag_type": TagType.MifareClassic1k,
+    },
+    "SpoolEase": {
+        "build_processor": _build_spoolease_processor,
+        "tag_type": TagType.MifareUltralight,
     },
     "Snapmaker": {
         "build_processor": _build_snapmaker_processor,

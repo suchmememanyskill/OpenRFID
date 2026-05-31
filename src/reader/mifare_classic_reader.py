@@ -8,6 +8,6 @@ class MifareClassicReader(RfidReader):
         super().__init__(config)
 
     @abstractmethod
-    def read_mifare_classic(self, scan_result : ScanResult, keys: TagAuthentication) -> bytes|None:
-        """Reads data from a Mifare Classic tag using the provided keys for authentication."""
+    def read_mifare_classic(self, scan_result : ScanResult, keys: TagAuthentication) -> tuple[bytes|None, bool]:
+        """Reads data; returns (data, retryable) where None data signals failure."""
         raise NotImplementedError("Subclasses must implement this method")

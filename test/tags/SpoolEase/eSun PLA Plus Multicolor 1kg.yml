@@ -1,0 +1,20 @@
+source_processor: SpooleaseTagProcessor
+unique_id: 1267d66e8ccad2002d3e535087257236a345837091f08033d923f7c139bb424c
+manufacturer: eSUN
+type: PLA
+modifiers:
+  - Plus
+colors:
+  - 0xFFB87333
+  - 0xFF50C878
+  - 0xFFD4AF37
+diameter_mm: 1.75
+weight_grams: 1000 
+hotend_min_temp_c: 190
+hotend_max_temp_c: 240
+bed_temp_c: 55 
+drying_temp_c: 50
+drying_time_hours: 8
+manufacturing_date: "0001-01-01"
+td: 0.0
+

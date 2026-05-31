@@ -25,6 +25,7 @@ from tag.openspool import OpenspoolTagProcessor
 from tag.filaman import FilamanTagProcessor
 from tag.qidi.processor import QidiTagProcessor
 from tag.snapmaker import SnapmakerTagProcessor
+from tag.spoolease import SpooleaseTagProcessor
 from tag.tigertag import TigerTagProcessor
 from controllers.moonraker_on_property_change import MoonrakerOnPropertyChangeController
 
@@ -61,6 +62,8 @@ def create_configurable_entity(key: str, config: dict) -> ConfigurableEntity:
             return OpenspoolTagProcessor(config)
         case "filaman_tag_processor":
             return FilamanTagProcessor(config)
+        case "spoolease_tag_processor":
+            return SpooleaseTagProcessor(config)
         case "snapmaker_tag_processor":
             return SnapmakerTagProcessor(config)
         case "tigertag_tag_processor":
