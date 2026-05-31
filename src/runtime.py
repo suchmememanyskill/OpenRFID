@@ -126,7 +126,7 @@ class Runtime:
         return (scan_result, filament, retry)
 
     def process_mifare_classic(self, reader: MifareClassicReader, scan_result: ScanResult) -> tuple[GenericFilament | None, bool]:
-        retry = False
+        any_retryable = False
 
         for processor in self.mifare_classic_processors:
             reader.start_session()
@@ -144,17 +144,18 @@ class Runtime:
                 reader.end_session()
                 continue
 
-            card_data = reader.read_mifare_classic(scan_result, auth)
+            card_data, retryable = reader.read_mifare_classic(scan_result, auth)
             reader.end_session()
 
             if card_data is not None:
                 logging.debug(f"Read MIFARE Classic card data: {card_data.hex().upper()}")
                 return processor.process_tag(scan_result, card_data), False
-            else:
-                logging.warning("Failed to read MIFARE Classic card data")
-                retry = True
 
-        return None, retry
+            logging.warning("Failed to read MIFARE Classic card data")
+            if retryable:
+                any_retryable = True
+
+        return None, any_retryable
     
     def process_mifare_ultralight(self, reader: MifareUltralightReader, scan_result: ScanResult) -> tuple[GenericFilament | None, bool]:
         reader.start_session()

@@ -62,14 +62,16 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
 
         return ScanResult(tag_type_from_sak(bytes(SAK)), bytes(UID), bytes(ATQA), bytes(BCC), bytes(SAK))
 
-    def read_mifare_classic(self, scan_result: ScanResult, keys: TagAuthentication) -> bytes | None:
+    def read_mifare_classic(self, scan_result: ScanResult, keys: TagAuthentication) -> tuple[bytes|None, bool]:
         data = self.__reader_a_m1_read_all_data(list(scan_result.uid), Constants.FM175XX_M1_CARD_AUTH_MODE_A, keys)
 
         if data.err_code != Constants.FM175XX_OK:
             self.logger.error("Mifare Classic read error: %d", data.err_code)
-            return None
+            if data.err_code == Constants.FM175XX_CARD_AUTH_ERR:
+                return None, False  # auth error is not retryable
+            return None, True
 
-        return bytes(data.out_data)
+        return bytes(data.out_data), False
     
     def read_mifare_ultralight(self, scan_result: ScanResult) -> bytes | None:
         data = self.__reader_a_ultralight_read_all_data()
