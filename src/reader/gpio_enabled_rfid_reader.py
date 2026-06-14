@@ -1,3 +1,5 @@
+from time import sleep
+
 from reader.mifare_classic_reader import MifareClassicReader
 from reader.mifare_ultralight_reader import MifareUltralightReader
 from reader.rfid_reader import RfidReader
@@ -30,7 +32,10 @@ class GpioEnabledRfidReader(MifareClassicReader, MifareUltralightReader):
         
         for pin in self.gpio_low:
             pin.set_low()
-        
+
+        # Allow channel to settle after changing GPIO states
+        sleep(0.100)
+
         self.rfid_reader.start_session()
 
     def end_session(self):
