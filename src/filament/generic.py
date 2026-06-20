@@ -26,7 +26,9 @@ class GenericFilament:
                  drying_temp_c: float,
                  drying_time_hours: float,
                  manufacturing_date: str, # ISO 8601 date string
-                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 td: float = 0.0, # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 bed_temp_max_c: float = 0.0,
+                 message: str = "", # Custom message (e.g. from TigerTag to support a name for the filament or a short description)
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -43,6 +45,8 @@ class GenericFilament:
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
         self.td = td
+        self.bed_temp_max_c = bed_temp_max_c
+        self.message = message
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -99,10 +103,12 @@ class GenericFilament:
             "hotend_min_temp_c": self.hotend_min_temp_c,
             "hotend_max_temp_c": self.hotend_max_temp_c,
             "bed_temp_c": self.bed_temp_c,
+            "bed_temp_max_c": self.bed_temp_max_c,
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
             "manufacturing_date": self.manufacturing_date,
-            "td": self.td
+            "td": self.td,
+            "message": self.message,
         }
     
     @staticmethod
