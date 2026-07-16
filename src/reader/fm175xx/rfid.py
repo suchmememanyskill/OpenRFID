@@ -42,9 +42,9 @@ class Fm175xx(MifareClassicReader, MifareUltralightReader):
 
     def hard_reset(self):
         self.reset_pin.set_low()
-        time.sleep(0.3)
+        time.sleep(0.100)
         self.reset_pin.set_high()
-        time.sleep(0.3)
+        time.sleep(0.200)
 
     def start_session(self):
         self.__reader_a_init()
