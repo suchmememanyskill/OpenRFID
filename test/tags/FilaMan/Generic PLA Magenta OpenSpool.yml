@@ -1,0 +1,16 @@
+source_processor: FilamanTagProcessor
+unique_id: 48e979461529978f9e202958f82a009a77e199189018fe94bcc0230acb261985
+manufacturer: Generic
+type: PLA
+modifiers: []
+colors:
+  - 0xFFF330F9
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 180
+hotend_max_temp_c: 210
+bed_temp_c: 60.0
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+manufacturing_date: "0001-01-01"
+td: 0.0

@@ -1,0 +1,16 @@
+source_processor: FilamanTagProcessor
+unique_id: 69964a48069f2ab4163177453da929cfbe8d937e28cdbbed2918b43212b97454
+manufacturer: Elegoo
+type: PLA
+modifiers: []
+colors:
+  - 0xFFA5A5A5
+diameter_mm: 1.75
+weight_grams: 1000
+hotend_min_temp_c: 200
+hotend_max_temp_c: 230
+bed_temp_c: 60.0
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+manufacturing_date: "0001-01-01"
+td: 0.0
