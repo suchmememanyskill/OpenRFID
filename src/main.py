@@ -126,14 +126,12 @@ def main():
     prefix_match      = str(type_normalizer_raw.get("prefix_match", "false")).lower() == "true"
     type_map_enabled  = str(type_normalizer_raw.get("type_map",     "false")).lower() == "true"
 
-    # Parse [type_map] entries — strip optional quotes, normalise keys to uppercase
+    # Parse [type_map] entries — configparser lowercases keys, normalise to uppercase before matching
     type_map: dict[str, str] = {}
     if type_map_enabled:
         for k, v in type_map_raw.items():
-            clean_k = k.strip('"').upper()
-            clean_v = v.strip('"').upper()
-            if clean_k:
-                type_map[clean_k] = clean_v
+            if k:
+                type_map[k.upper()] = v.upper()
 
     init_type_normalizer(
         type_map=type_map,
