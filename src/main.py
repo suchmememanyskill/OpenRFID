@@ -3,6 +3,7 @@ from typing import cast
 from bus import OutputPin, SoftwareSPI
 from config import register_configurable_entity, get_required_configurable_entity_by_name, TYPE_RUNTIME, TYPE_EXPORTER, TYPE_TAG_PROCESSOR, TYPE_RFID_READER, ConfigurableEntity
 from config.configuration import Configuration
+from filament.generic import init_type_normalizer
 from controllers.moonraker_remote_method import MoonrakerRemoteMethodController
 from exporters.webhook import WebhookExporter
 from reader.fm175xx.rfid import Fm175xx
@@ -108,6 +109,12 @@ def main():
     else:
         logging.error("Unsupported config file format, only .json is supported")
         sys.exit(1)
+
+    init_type_normalizer(
+        type_map=run.config.type_normalizer_type_map,
+        strip_plus=run.config.type_normalizer_strip_plus,
+        prefix_match=run.config.type_normalizer_prefix_match,
+    )
 
     for controller in run.controllers:
         threading.Thread(target=controller.loop, daemon=True).start()
