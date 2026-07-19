@@ -3,6 +3,7 @@ from typing import cast
 from bus import OutputPin, SoftwareSPI
 from config import register_configurable_entity, get_required_configurable_entity_by_name, TYPE_RUNTIME, TYPE_EXPORTER, TYPE_TAG_PROCESSOR, TYPE_RFID_READER, ConfigurableEntity
 from config.configuration import Configuration
+from filament.generic import init_type_normalizer
 from controllers.moonraker_remote_method import MoonrakerRemoteMethodController
 from exporters.webhook import WebhookExporter
 from reader.fm175xx.rfid import Fm175xx
@@ -91,11 +92,16 @@ def main():
         logging.error(f"Config file does not exist: {config_file}")
         sys.exit(1)
 
+    type_normalizer_raw: dict = {}
+    type_map_raw: dict = {}
+
     if config_file.endswith(".json"):
         with open(config_file, "r") as f:
             config = f.read()
 
         json_config = json.loads(config)
+        type_normalizer_raw = json_config.pop("type_normalizer", {})
+        type_map_raw        = json_config.pop("type_map", {})
 
         run = consume_config(json_config)
     elif config_file.endswith(".ini") or config_file.endswith(".cfg"):
@@ -104,10 +110,34 @@ def main():
 
         config = {str(section): dict(parser.items(section)) for section in parser.sections()}
 
+        # Remove normaliser sections before dispatch — they are not ConfigurableEntity types.
+        # configparser lowercases all keys, so quotes are used in the .cfg to preserve casing;
+        # strip them here and normalise to uppercase for case-insensitive matching.
+        type_normalizer_raw = config.pop("type_normalizer", {})
+        type_map_raw        = config.pop("type_map", {})
+
         run = consume_config(config)
     else:
-        logging.error("Unsupported config file format, only .json is supported")
+        logging.error("Unsupported config file format, only .json and .cfg/.ini are supported")
         sys.exit(1)
+
+    # Parse [type_normalizer] flags
+    strip_plus        = str(type_normalizer_raw.get("strip_plus",   "false")).lower() == "true"
+    prefix_match      = str(type_normalizer_raw.get("prefix_match", "false")).lower() == "true"
+    type_map_enabled  = str(type_normalizer_raw.get("type_map",     "false")).lower() == "true"
+
+    # Parse [type_map] entries — configparser lowercases keys, normalise to uppercase before matching
+    type_map: dict[str, str] = {}
+    if type_map_enabled:
+        for k, v in type_map_raw.items():
+            if k:
+                type_map[k.upper()] = v.upper()
+
+    init_type_normalizer(
+        type_map=type_map,
+        strip_plus=strip_plus,
+        prefix_match=prefix_match,
+    )
 
     for controller in run.controllers:
         threading.Thread(target=controller.loop, daemon=True).start()

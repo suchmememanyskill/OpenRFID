@@ -1,5 +1,77 @@
 import hashlib
+import logging
 from .valid_materials import VALID_BASE_MATERIALS
+
+# ---------------------------------------------------------------------------
+# Filament type normaliser
+# ---------------------------------------------------------------------------
+# Resolves non-standard filament type strings (e.g. "PLA+", "ABS+",
+# "PETG-RAPID") to a valid VALID_BASE_MATERIALS entry before GenericFilament
+# raises ValueError.
+#
+# Many real-world tags — including Spoolman's predefined filament database —
+# use type strings that are not in VALID_BASE_MATERIALS. Without normalisation
+# any such tag causes OpenRFID to fire tag_parse_error instead of tag_read,
+# so exporters never receive filament data.
+#
+# Resolution order:
+#   Step 1  Exact match against VALID_BASE_MATERIALS          (always active)
+#   Step 2  Explicit type_map from configuration              (always active when set)
+#   Step 3  Strip trailing '+': ABS+ → ABS                   (type_normalizer_strip_plus = true)
+#   Step 4  Longest-prefix match: PETG-RAPID → PETG          (type_normalizer_prefix_match = true)
+#
+# Call init_type_normalizer() once at startup (after loading Configuration).
+# ---------------------------------------------------------------------------
+
+_USER_MAP:      dict[str, str] = {}
+_STRIP_PLUS:    bool = False
+_PREFIX_MATCH:  bool = False
+
+
+def init_type_normalizer(
+    type_map:      dict[str, str],
+    strip_plus:    bool,
+    prefix_match:  bool,
+) -> None:
+    """Initialise module-level normaliser state from a loaded Configuration."""
+    global _USER_MAP, _STRIP_PLUS, _PREFIX_MATCH
+    _USER_MAP     = type_map
+    _STRIP_PLUS   = strip_plus
+    _PREFIX_MATCH = prefix_match
+    logging.info(
+        f"OpenRFID type normaliser: {len(_USER_MAP)} map entries, "
+        f"strip_plus={_STRIP_PLUS}, prefix_match={_PREFIX_MATCH}"
+    )
+
+
+def _derive_material_type(raw: str) -> tuple[str | None, str | None]:
+    """
+    Attempt to derive a valid VALID_BASE_MATERIALS entry from a non-standard type string.
+
+    Returns (derived_type, step_name) or (None, None) if unresolvable.
+    """
+    # Step 1: already valid — no normalisation needed
+    if raw in VALID_BASE_MATERIALS:
+        return raw, None
+
+    # Step 2: explicit user map
+    if raw in _USER_MAP:
+        return _USER_MAP[raw], "type_map"
+
+    stripped = raw.rstrip('+')
+
+    # Step 3: strip trailing '+'
+    if _STRIP_PLUS and stripped in VALID_BASE_MATERIALS:
+        return stripped, "strip_plus"
+
+    # Step 4: longest-prefix match
+    if _PREFIX_MATCH:
+        for valid in sorted(VALID_BASE_MATERIALS, key=len, reverse=True):
+            if raw.startswith(valid) or stripped.startswith(valid):
+                return valid, "prefix_match"
+
+    return None, None
+
 
 def to_rgba(argb: int) -> int:
     a = (argb >> 24) & 0xFF
@@ -53,7 +125,15 @@ class GenericFilament:
             self.modifiers.remove("GF")
 
         if self.type not in VALID_BASE_MATERIALS:
-            raise ValueError(f"Invalid filament type: {self.type}")
+            derived, via = _derive_material_type(self.type)
+            if derived:
+                logging.warning(
+                    f"OpenRFID: non-standard filament type '{self.type}' "
+                    f"normalised to '{derived}' (via {via})"
+                )
+                self.type = derived
+            else:
+                raise ValueError(f"Invalid filament type: {self.type}")
 
     def pretty_text(self) -> str:
         modifiers = ' '.join(self.modifiers)
