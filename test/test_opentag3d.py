@@ -109,6 +109,19 @@ def test_short_payload_and_target_fallback(processor, scan, payload):
     assert decode_payload(payload[:145], SCHEMAS[2])["mfg_time"] is None
 
 
+def test_bed_temp_falls_back_to_range(processor, scan, payload):
+    # The spec stores a bed target alongside a min/max pair. A tag that fills in
+    # only the range should still yield a bed temperature, mirroring the existing
+    # print-temperature fallback rather than reporting 0.
+    payload[148] = 0
+    payload[149:151] = bytes([11, 13])
+    assert processor.process_tag(scan, tag(record(payload))).bed_temp_c == 55
+    payload[149] = 0
+    assert processor.process_tag(scan, tag(record(payload))).bed_temp_c == 65
+    payload[150] = 0
+    assert processor.process_tag(scan, tag(record(payload))).bed_temp_c == 0
+
+
 def test_primary_transparent_black_and_cf_modifier(processor, scan, payload):
     payload[60:76] = bytes(16)
     payload[7:12] = b"CF\x00\x00\x00"

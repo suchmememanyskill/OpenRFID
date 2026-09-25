@@ -99,7 +99,7 @@ class OpenTag3DTagProcessor(NdefTagProcessor):
             weight_grams=data["weight"],
             hotend_min_temp_c=hotend_min_temp_c,
             hotend_max_temp_c=hotend_max_temp_c,
-            bed_temp_c=data["bed_temp"],
+            bed_temp_c=data["bed_temp"] or data["min_bed_temp"] or data["max_bed_temp"],
             drying_temp_c=data["max_dry_temp"],
             drying_time_hours=data["dry_time"],
             # Reuse the other processors' unknown-date sentinel for absent dates.
