@@ -14,7 +14,12 @@ class WebhookExporter(Exporter):
         url_template = config.get("url_template", None)
         self.url_template = self.env.from_string(url_template) if url_template else None
         self.method = str(config.get("method", "POST")).upper()
-        self.headers = config.get("headers", {})
+        headers = config.get("headers", {})
+        if isinstance(headers, str):
+            # cfg files don't support maps, assume we got json string
+            headers = json.loads(headers)
+        self.headers = headers
+
         self.body_json = config.get("body_json", None)
         body_json_template = config.get("body_json_template", None)
         self.body_json_template = self.env.from_string(body_json_template) if body_json_template else None
