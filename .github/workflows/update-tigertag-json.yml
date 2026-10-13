@@ -1,0 +1,72 @@
+name: Update TigerTag database
+
+on:
+  schedule:
+    # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-tigertag-json
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Sync TigerTag tables
+        run: python src/tag/tigertag/download_json.py --summary "$RUNNER_TEMP/tigertag-summary.md"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain -- src/tag/tigertag/database)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pull requests opened with GITHUB_TOKEN do not trigger other workflows,
+      # so the tests run here before the pull request is opened.
+      - name: Run pytest
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          FILAMENT_DETECT_TEST_CREALITY_ENCRYPTION_KEY: ${{ secrets.FILAMENT_DETECT_TEST_CREALITY_ENCRYPTION_KEY }}
+        run: pytest
+
+      - name: Build pull request body
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          {
+            echo "Automated update of the TigerTag reference tables in \`src/tag/tigertag/database/\`, synced from api.tigertag.io (GitHub mirror of the TigerTag RFID Guide as fallback)."
+            echo
+            cat "$RUNNER_TEMP/tigertag-summary.md"
+            echo
+            echo "Tests passed in [this workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          } > "$RUNNER_TEMP/pr-body.md"
+
+      - name: Open pull request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: automation/update-tigertag-json
+          delete-branch: true
+          add-paths: src/tag/tigertag/database/*.json
+          commit-message: Update TigerTag JSON database
+          title: Update TigerTag JSON database
+          body-path: ${{ runner.temp }}/pr-body.md
