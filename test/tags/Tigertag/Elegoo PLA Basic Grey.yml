@@ -15,3 +15,5 @@ drying_temp_c: 50.0
 drying_time_hours: 8.0
 manufacturing_date: "2026-04-03"
 td: 0.0
+tag_index: 0
+tag_count: 0

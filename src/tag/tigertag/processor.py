@@ -68,6 +68,17 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
+            # Tag index / count (spec v2.2): 0x12 = tag 1 of 2. Tags written
+            # before v2.2 have 0x00 here, which means unknown.
+            tag_index = 0
+            tag_count = 0
+            if len(user_data) > Constants.OFF_TAG_INDEX_COUNT:
+                index_count = user_data[Constants.OFF_TAG_INDEX_COUNT]
+                tag_index = index_count >> 4
+                tag_count = index_count & 0x0F
+                if tag_index > tag_count:
+                    tag_index = 0
+
             material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
             material_type = self.registry.material_type_ids.get(material_id, material_label)
             filled_type = self.registry.filled_type_ids.get(material_id, "")
@@ -100,6 +111,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("  Bed Temp: %d-%d °C", bed_temp_min, bed_temp_max)
             self.logger.debug("  TD: raw=%d → %.1f mm", td_raw, td_mm)
             self.logger.debug("  Timestamp: %d (%s)", timestamp_raw, manufacturing_date)
+            self.logger.debug("  Tag: %d of %d", tag_index, tag_count)
 
             return GenericFilament(
                 source_processor=self.name,
@@ -120,6 +132,8 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
                 drying_time_hours=float(dry_time),
                 manufacturing_date=manufacturing_date,
                 td=td_mm,
+                tag_index=tag_index,
+                tag_count=tag_count,
             )
 
         except Exception as e:

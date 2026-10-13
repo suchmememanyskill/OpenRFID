@@ -20,6 +20,7 @@ OFF_DRY_TIME = 29
 OFF_BED_TEMP_MIN = 30
 OFF_BED_TEMP_MAX = 31
 OFF_TIMESTAMP = 32
+OFF_TAG_INDEX_COUNT = 39  # high nibble = tag index, low nibble = tag count, 0 = unknown
 OFF_TD = 44
 OFF_METADATA = 48
 OFF_SIGNATURE = 80

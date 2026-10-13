@@ -26,7 +26,9 @@ class GenericFilament:
                  drying_temp_c: float,
                  drying_time_hours: float,
                  manufacturing_date: str, # ISO 8601 date string
-                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 td: float = 0.0, # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 tag_index: int = 0, # Which tag of the item was read (1-based), 0 = unknown
+                 tag_count: int = 0, # Number of tags on the item (2 = twin tags), 0 = unknown
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -43,6 +45,8 @@ class GenericFilament:
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
         self.td = td
+        self.tag_index = tag_index
+        self.tag_count = tag_count
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -71,7 +75,7 @@ class GenericFilament:
             f"- Drying: {self.drying_temp_c:.1f}C for {self.drying_time_hours:.1f} hours",
             f"- Manufactured on: {self.manufacturing_date}",
             f"- TD: {self.td:.1f} mm"
-        ])
+        ] + ([f"- Tag: {self.tag_index or '?'} of {self.tag_count}"] if self.tag_count else []))
 
     @property
     def rgba(self) -> int:
@@ -102,7 +106,9 @@ class GenericFilament:
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
             "manufacturing_date": self.manufacturing_date,
-            "td": self.td
+            "td": self.td,
+            "tag_index": self.tag_index,
+            "tag_count": self.tag_count
         }
     
     @staticmethod
