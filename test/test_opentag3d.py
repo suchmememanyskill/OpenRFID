@@ -175,6 +175,15 @@ def test_long_payload_ignores_reserved_extension_bytes(processor, scan, payload)
     assert result.weight_grams == 1000
 
 
+def test_measured_weight_is_exported_as_remaining_weight(processor, scan, payload):
+    # The captured spool was never weighed (measured weight 0 = unknown).
+    assert processor.process_tag(scan, tag(record(payload))).remaining_weight_grams == 0
+    payload[164:166] = (742).to_bytes(2, "big")
+    result = processor.process_tag(scan, tag(record(payload)))
+    assert result.weight_grams == 1000
+    assert result.remaining_weight_grams == 742
+
+
 def test_configuration_runtime_and_webhook(scan, payload, monkeypatch):
     # Import the application's real configuration factory without Linux-only
     # GPIO/SPI modules; this test never constructs or accesses physical hardware.

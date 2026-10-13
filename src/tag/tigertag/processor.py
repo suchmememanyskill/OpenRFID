@@ -68,6 +68,13 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             timestamp_raw = struct.unpack_from('>I', user_data, Constants.OFF_TIMESTAMP)[0]
 
+            # Measure Available: remaining quantity, written back by a smart scale
+            # (e.g. Tiger Scale). Factory-written tags leave it at 0 (not measured).
+            available_value = 0
+            if len(user_data) >= Constants.OFF_MEASURE_AVAILABLE + 3:
+                available_bytes = user_data[Constants.OFF_MEASURE_AVAILABLE:Constants.OFF_MEASURE_AVAILABLE + 3]
+                available_value = (available_bytes[0] << 16) | (available_bytes[1] << 8) | available_bytes[2]
+
             material_label = self.registry.material_ids.get(material_id, f"Unknown({material_id})")
             material_type = self.registry.material_type_ids.get(material_id, material_label)
             filled_type = self.registry.filled_type_ids.get(material_id, "")
@@ -80,6 +87,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
 
             weight_grams = self.__convert_to_grams(measure_value, unit_id)
             manufacturing_date = self.__timestamp_to_date(timestamp_raw)
+            remaining_weight_grams = self.__convert_to_grams(available_value, unit_id) if available_value else 0.0
 
             modifiers = []
             for aspect_label in (aspect1_label, aspect2_label):
@@ -95,6 +103,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("  Aspect1: %s, Aspect2: %s", aspect1_label, aspect2_label)
             self.logger.debug("  Color (ARGB): 0x%08X", argb_color)
             self.logger.debug("  Measure: %d %s (%.1f g)", measure_value, unit_label, weight_grams)
+            self.logger.debug("  Measure Available: %d %s (%.1f g)", available_value, unit_label, remaining_weight_grams)
             self.logger.debug("  Nozzle Temp: %d-%d °C", temp_min, temp_max)
             self.logger.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
             self.logger.debug("  Bed Temp: %d-%d °C", bed_temp_min, bed_temp_max)
@@ -120,6 +129,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
                 drying_time_hours=float(dry_time),
                 manufacturing_date=manufacturing_date,
                 td=td_mm,
+                remaining_weight_grams=remaining_weight_grams,
             )
 
         except Exception as e:

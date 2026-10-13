@@ -13,3 +13,4 @@ drying_temp_c: 65
 drying_time_hours: 0
 manufacturing_date: '2026-04-03'
 td: 0.0
+remaining_weight_grams: 0

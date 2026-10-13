@@ -36,7 +36,8 @@ types, and scaling come from JSON; the mapping to `GenericFilament` is explicit.
 - Missing print temperature bounds fall back to the target temperature.
 - Primary color is retained even when transparent; transparent-black secondary
   colors are omitted. Exported colors use ARGB.
-- Weight is the nominal filament weight, not measured weight or remaining weight.
+- Weight is the nominal filament weight. The measured filament weight is exported
+  as `remaining_weight_grams` (0 when not measured).
 - The unique ID hashes the physical tag UID, since a serial may identify a batch.
 - Material names still follow `GenericFilament`'s existing supported-material
   validation; unrecognized materials fail cleanly rather than becoming PLA.

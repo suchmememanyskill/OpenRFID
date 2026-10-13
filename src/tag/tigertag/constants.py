@@ -22,6 +22,7 @@ OFF_BED_TEMP_MAX = 31
 OFF_TIMESTAMP = 32
 OFF_TD = 44
 OFF_METADATA = 48
+OFF_MEASURE_AVAILABLE = 76  # u24 BE, remaining quantity in the same unit as the measure
 OFF_SIGNATURE = 80
 
 MIN_DATA_LENGTH = 96

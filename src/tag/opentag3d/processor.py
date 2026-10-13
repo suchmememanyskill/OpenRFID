@@ -95,7 +95,7 @@ class OpenTag3DTagProcessor(NdefTagProcessor):
             modifiers=[data["material_mod"]] if data["material_mod"] else [],
             colors=colors,
             diameter_mm=data["diameter"],
-            # Target Weight excludes the spool and is not measured/remaining weight.
+            # Target Weight excludes the spool; the measured weight is exported separately.
             weight_grams=data["weight"],
             hotend_min_temp_c=hotend_min_temp_c,
             hotend_max_temp_c=hotend_max_temp_c,
@@ -105,4 +105,6 @@ class OpenTag3DTagProcessor(NdefTagProcessor):
             # Reuse the other processors' unknown-date sentinel for absent dates.
             manufacturing_date=data["mfg_date"] or "0001-01-01",
             td=data["td"],
+            # Measured Filament Weight: actual filament weight, 0 when not measured.
+            remaining_weight_grams=data["measured_weight"],
         )

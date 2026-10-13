@@ -26,7 +26,8 @@ class GenericFilament:
                  drying_temp_c: float,
                  drying_time_hours: float,
                  manufacturing_date: str, # ISO 8601 date string
-                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 td: float = 0.0, # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 remaining_weight_grams: float = 0.0, # Measured remaining filament (e.g. written back by a smart scale), 0 = unknown
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -43,6 +44,7 @@ class GenericFilament:
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
         self.td = td
+        self.remaining_weight_grams = remaining_weight_grams
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -71,7 +73,7 @@ class GenericFilament:
             f"- Drying: {self.drying_temp_c:.1f}C for {self.drying_time_hours:.1f} hours",
             f"- Manufactured on: {self.manufacturing_date}",
             f"- TD: {self.td:.1f} mm"
-        ])
+        ] + ([f"- Remaining: {self.remaining_weight_grams} grams"] if self.remaining_weight_grams else []))
 
     @property
     def rgba(self) -> int:
@@ -102,7 +104,8 @@ class GenericFilament:
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
             "manufacturing_date": self.manufacturing_date,
-            "td": self.td
+            "td": self.td,
+            "remaining_weight_grams": self.remaining_weight_grams
         }
     
     @staticmethod
