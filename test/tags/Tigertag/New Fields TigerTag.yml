@@ -1,0 +1,16 @@
+bed_temp_c: 50.0
+bed_temp_max_c: 60.0
+colors:
+- 0xFF000000
+diameter_mm: 1.75
+drying_temp_c: 45.0
+drying_time_hours: 8.0
+hotend_max_temp_c: 190.0
+hotend_min_temp_c: 230.0
+manufacturer: Sunlu
+manufacturing_date: '2025-01-01'
+message: Galaxy Black
+source_processor: TigerTagProcessor
+td: 0.8
+type: PLA
+weight_grams: 1000.0
