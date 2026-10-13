@@ -22,6 +22,11 @@ OFF_BED_TEMP_MAX = 31
 OFF_TIMESTAMP = 32
 OFF_TD = 44
 OFF_METADATA = 48
+# Custom message: 28 bytes of free UTF-8 text (emoji allowed) at +48, pages
+# 0x10-0x16. It is followed by Measure Available (u24 BE, +76) and a reserved
+# byte (+79).
+OFF_MESSAGE = OFF_METADATA
+MESSAGE_LENGTH = 28
 OFF_SIGNATURE = 80
 
 MIN_DATA_LENGTH = 96
