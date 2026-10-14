@@ -20,9 +20,19 @@ OFF_DRY_TIME = 29
 OFF_BED_TEMP_MIN = 30
 OFF_BED_TEMP_MAX = 31
 OFF_TIMESTAMP = 32
+OFF_COLOR2_RGB = 36
+OFF_COLOR3_RGB = 40
 OFF_TD = 44
 OFF_METADATA = 48
 OFF_SIGNATURE = 80
+
+# Multi-color aspects, matched by id (not by label, which may be renamed in
+# id_aspect.json): aspect id -> number of colors on the chip.
+MULTICOLOR_ASPECT_COLOR_COUNT = {
+    252: 2,  # Bicolor
+    24: 3,   # Tricolor
+    145: 3,  # Rainbow
+}
 
 MIN_DATA_LENGTH = 96
 USER_DATA_PAGE_OFFSET = 4

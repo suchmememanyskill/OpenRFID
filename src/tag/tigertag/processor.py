@@ -47,6 +47,16 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             a = user_data[Constants.OFF_COLOR_RGBA + 3]
             argb_color = (a << 24) | (r << 16) | (g << 8) | b
 
+            # Multi-color: a multi-color aspect can be on Aspect 1 or Aspect 2, so
+            # both are checked and the highest color count wins (spec section 2.5).
+            # Colors 2 and 3 are stored as RGB and reuse the alpha of color 1.
+            color_count = max(Constants.MULTICOLOR_ASPECT_COLOR_COUNT.get(aspect1_id, 1),
+                              Constants.MULTICOLOR_ASPECT_COLOR_COUNT.get(aspect2_id, 1))
+            colors = [argb_color]
+            for offset in (Constants.OFF_COLOR2_RGB, Constants.OFF_COLOR3_RGB)[:color_count - 1]:
+                if len(user_data) >= offset + 3:
+                    colors.append((a << 24) | (user_data[offset] << 16) | (user_data[offset + 1] << 8) | user_data[offset + 2])
+
             weight_bytes = user_data[Constants.OFF_WEIGHT:Constants.OFF_WEIGHT + 3]
             measure_value = (weight_bytes[0] << 16) | (weight_bytes[1] << 8) | weight_bytes[2]
             unit_id = user_data[Constants.OFF_UNIT_ID]
@@ -93,7 +103,7 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             self.logger.debug("  Brand: %s (ID: %d)", brand_name, brand_id)
             self.logger.debug("  Diameter: %.2f mm (ID: %d)", diameter_mm, diameter_id)
             self.logger.debug("  Aspect1: %s, Aspect2: %s", aspect1_label, aspect2_label)
-            self.logger.debug("  Color (ARGB): 0x%08X", argb_color)
+            self.logger.debug("  Colors (ARGB): %s", " ".join(f"0x{color:08X}" for color in colors))
             self.logger.debug("  Measure: %d %s (%.1f g)", measure_value, unit_label, weight_grams)
             self.logger.debug("  Nozzle Temp: %d-%d °C", temp_min, temp_max)
             self.logger.debug("  Dry: %d °C for %d hours", dry_temp, dry_time)
@@ -104,13 +114,13 @@ class TigerTagProcessor(MifareUltralightTagProcessor):
             return GenericFilament(
                 source_processor=self.name,
                 unique_id=GenericFilament.generate_unique_id(
-                    "TigerTag", brand_name, resolved_material_type, argb_color,
+                    "TigerTag", brand_name, resolved_material_type, *colors,
                     product_id, timestamp_raw
                 ),
                 manufacturer=brand_name,
                 type=resolved_material_type,
                 modifiers=modifiers,
-                colors=[argb_color],
+                colors=colors,
                 diameter_mm=diameter_mm,
                 weight_grams=weight_grams,
                 hotend_min_temp_c=float(temp_min),

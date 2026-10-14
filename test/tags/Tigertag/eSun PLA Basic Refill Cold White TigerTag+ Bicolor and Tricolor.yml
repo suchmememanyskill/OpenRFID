@@ -1,0 +1,20 @@
+bed_temp_c: 0.0
+colors:
+- 0xFFDDE5ED
+- 0xFF1E90FF
+- 0xFFFF4500
+diameter_mm: 1.75
+drying_temp_c: 50.0
+drying_time_hours: 8.0
+hotend_max_temp_c: 230.0
+hotend_min_temp_c: 210.0
+manufacturer: eSun
+manufacturing_date: '2025-11-12'
+modifiers:
+- Bicolor
+- Tricolor
+source_processor: TigerTagProcessor
+td: 0.0
+type: PLA
+unique_id: 037707719b2099739fba91970970075f5f8f21cbb42734ccf8a5c4a12a1742da
+weight_grams: 1000.0
