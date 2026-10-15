@@ -47,6 +47,12 @@ class OpenspoolTagProcessor(NdefTagProcessor):
             alpha = max(0x00, min(0xFF, int(data.get('alpha', 'FF'), 16)))
             color_argb = (alpha << 24) | color_hex
 
+            colors = [color_argb]
+            additional = data.get('additional_color_hexes') or []
+            if isinstance(additional, list):
+                for extra_hex in additional[:4]:
+                    colors.append((alpha << 24) | self.__parse_color_hex(extra_hex))
+
             try:
                 diameter_mm = float(data.get('diameter', 1.75))
             except (ValueError, TypeError):
@@ -76,11 +82,11 @@ class OpenspoolTagProcessor(NdefTagProcessor):
 
             return GenericFilament(
                 source_processor=self.name,
-                unique_id=GenericFilament.generate_unique_id("OpenSpool", brand, main_type, subtype, color_argb),
+                unique_id=GenericFilament.generate_unique_id("OpenSpool", brand, main_type, subtype, *colors),
                 manufacturer=brand,
                 type=main_type,
                 modifiers=[subtype] if subtype else [],
-                colors=[color_argb],
+                colors=colors,
                 diameter_mm=diameter_mm,
                 weight_grams=weight_grams,
                 hotend_min_temp_c=min_temp,
