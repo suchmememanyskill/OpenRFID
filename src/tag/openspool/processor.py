@@ -44,7 +44,7 @@ class OpenspoolTagProcessor(NdefTagProcessor):
             main_type = data.get('type', 'PLA').upper()
             subtype = data.get('subtype', '')
             color_hex = self.__parse_color_hex(data.get('color_hex', 'FFFFFF'))
-            alpha = max(0x00, min(0xFF, int(data.get('alpha', 'FF'), 16)))
+            alpha = self.__parse_alpha(data.get('alpha', 'FF'))
             color_argb = (alpha << 24) | color_hex
 
             try:
@@ -97,6 +97,26 @@ class OpenspoolTagProcessor(NdefTagProcessor):
             self.logger.exception("OpenSpool payload parsing failed: %s", str(e))
             return None
     
+    def __parse_alpha(self, value) -> int:
+        # JSON numbers are decimal (e.g. 128), as documented for the Snapmaker U1
+        # extended firmware and read by its built-in OpenSpool reader. Strings are
+        # hex (e.g. "80"), as this processor has always read them. Invalid values
+        # fall back to opaque instead of rejecting the whole tag.
+        try:
+            if isinstance(value, bool):
+                raise TypeError("alpha must be a number or hex string")
+            if isinstance(value, (int, float)):
+                alpha = int(value)
+            else:
+                alpha_str = str(value).strip()
+                if alpha_str.startswith('#'):
+                    alpha_str = alpha_str[1:]
+                alpha = int(alpha_str, 16)
+            return max(0x00, min(0xFF, alpha))
+        except (ValueError, TypeError, OverflowError):
+            self.logger.warning(f"OpenSpool: Invalid alpha value {value!r}, using FF")
+            return 0xFF
+
     def __parse_color_hex(self, value : str):
         try:
             hex_str = str(value)
