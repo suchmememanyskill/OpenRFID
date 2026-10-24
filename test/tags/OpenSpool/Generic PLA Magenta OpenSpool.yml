@@ -5,6 +5,7 @@ type: PLA
 modifiers: []
 colors:
   - 0xFFF330F9
+color_mode: default
 diameter_mm: 1.75
 weight_grams: 1000
 hotend_min_temp_c: 180

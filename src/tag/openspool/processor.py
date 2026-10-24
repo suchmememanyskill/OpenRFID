@@ -41,6 +41,9 @@ class OpenspoolTagProcessor(NdefTagProcessor):
                 return None
             
             brand = data.get('brand', 'Generic')
+            # color_type uses OrcaSlicer's filament_colour_type values:
+            # 0 = gradient, 1 = default. Missing or other values are default.
+            color_mode = "gradient" if str(data.get('color_type', '')).strip() == '0' else "default"
             main_type = data.get('type', 'PLA').upper()
             subtype = data.get('subtype', '')
             color_hex = self.__parse_color_hex(data.get('color_hex', 'FFFFFF'))
@@ -88,7 +91,8 @@ class OpenspoolTagProcessor(NdefTagProcessor):
                 bed_temp_c=bed_temp_c,
                 drying_temp_c=drying_temp_c,
                 drying_time_hours=drying_time_hours,
-                manufacturing_date="0001-01-01"
+                manufacturing_date="0001-01-01",
+                color_mode=color_mode
             )
         except json.JSONDecodeError as e:
             self.logger.exception("OpenSpool payload parsing failed: Invalid JSON: %s", str(e))

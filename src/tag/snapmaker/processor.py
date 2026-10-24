@@ -123,6 +123,10 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
         self.logger.debug(" Card UID: %s", card_uid.hex(':').upper())
 
         colors = [rgb_1, rgb_2, rgb_3, rgb_4, rgb_5][:color_nums]
+        # MULTI_MODE byte, as read by Snapmaker's u1-klipper (M1_PROTO_MULTI_MODE_POS).
+        # Snapmaker values: 0 = segment, anything else = gradient (as in Snapmaker
+        # Orca's FilamentColorModeFromConfig).
+        color_mode = "gradient" if data[Constants.M1_PROTO_MULTI_MODE_POS] != 0 else "default"
 
         return GenericFilament(
             source_processor=self.name,
@@ -138,7 +142,8 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
             bed_temp_c=bed_temp,
             drying_temp_c=drying_temp,
             drying_time_hours=drying_time,
-            manufacturing_date="2026-01-01" # TODO: Extract actual date
+            manufacturing_date="2026-01-01", # TODO: Extract actual date
+            color_mode=color_mode
         )
     
     def __hkdf_create_key(self, ikm : bytes, salt : bytes, key_type='a'):

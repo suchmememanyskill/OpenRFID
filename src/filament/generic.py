@@ -26,7 +26,8 @@ class GenericFilament:
                  drying_temp_c: float,
                  drying_time_hours: float,
                  manufacturing_date: str, # ISO 8601 date string
-                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 td: float = 0.0, # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 color_mode: str = "default" # Multicolor style: "gradient" or "default" (single color or segments), as in OrcaSlicer's filament_colour_type
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -43,6 +44,7 @@ class GenericFilament:
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
         self.td = td
+        self.color_mode = color_mode if color_mode in ("gradient", "default") else "default"
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -70,7 +72,8 @@ class GenericFilament:
             f"- Bed Temp: {self.bed_temp_c:.1f}C",
             f"- Drying: {self.drying_temp_c:.1f}C for {self.drying_time_hours:.1f} hours",
             f"- Manufactured on: {self.manufacturing_date}",
-            f"- TD: {self.td:.1f} mm"
+            f"- TD: {self.td:.1f} mm",
+            f"- Color mode: {self.color_mode}"
         ])
 
     @property
@@ -102,7 +105,8 @@ class GenericFilament:
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
             "manufacturing_date": self.manufacturing_date,
-            "td": self.td
+            "td": self.td,
+            "color_mode": self.color_mode
         }
     
     @staticmethod

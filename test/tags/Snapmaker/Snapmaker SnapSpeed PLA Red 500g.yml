@@ -6,6 +6,7 @@ modifiers:
   - SnapSpeed
 colors:
   - 0xFFE72F1D
+color_mode: default
 diameter_mm: 1.75
 weight_grams: 500
 hotend_min_temp_c: 190

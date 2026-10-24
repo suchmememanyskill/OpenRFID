@@ -1,0 +1,8 @@
+source_processor: OpenspoolTagProcessor
+manufacturer: Generic
+type: PLA
+modifiers:
+  - Silk
+color_mode: default
+hotend_min_temp_c: 190
+hotend_max_temp_c: 230
