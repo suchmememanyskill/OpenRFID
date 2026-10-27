@@ -8,7 +8,7 @@ from pathlib import Path
 # Parse the official JSON format so future offsets, lengths, scaling, and fields
 # can be updated from the specification instead of being manually implemented
 # in Python. Load the bundled schemas once, not on every scan or over the network.
-# Source: https://opentag3d.info/spec.json (2.001, downloaded 2026-09-09).
+# Source: https://opentag3d.info/spec.json (2.004, downloaded 2026-10-27).
 SCHEMAS = {
     2: json.loads((Path(__file__).parent / "schemas" / "v2.json").read_text(encoding="utf-8")),
 }

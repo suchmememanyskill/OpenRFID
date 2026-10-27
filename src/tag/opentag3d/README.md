@@ -1,13 +1,13 @@
 # OpenTag3D
 
 Enable offline reading with `[opentag3d_tag_processor]` in the configuration.
-The processor supports the 2.x layout through specification 2.001. Newer 2.x
+The processor supports the 2.x layout through specification 2.004. Newer 2.x
 versions are attempted with a warning; other major versions are rejected.
 No network access or extra dependencies are needed at runtime.
 
 `schemas/v2.json` is an unmodified copy of the official
-[spec.json](https://opentag3d.info/spec.json), version 2.001, downloaded on
-2026-09-09. See the [specification](https://opentag3d.info/spec.html) and its
+[spec.json](https://opentag3d.info/spec.json), version 2.004, downloaded on
+2026-10-27. See the [specification](https://opentag3d.info/spec.html) and its
 GPL-3.0 license. The schemas are loaded once on module import. Offsets, lengths,
 types, and scaling come from JSON; the mapping to `GenericFilament` is explicit.
 
