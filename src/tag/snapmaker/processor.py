@@ -129,7 +129,7 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
             unique_id=GenericFilament.generate_unique_id("Snapmaker", vendor, manufacturer, main_type, sub_type, argb_color, weight_grams, sku, tray),
             manufacturer=vendor,
             type=main_type,
-            modifiers=[sub_type],
+            modifiers=[sub_type] if sub_type_code != Constants.FILAMENT_PROTO_SUB_TYPE_RESERVED else [],
             colors=colors,
             diameter_mm=diameter_mm,
             weight_grams=weight_grams,
