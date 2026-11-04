@@ -66,6 +66,7 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
         tray = self.__convert_to_int(self.__slice(data, Constants.M1_PROTO_TRAY_POS, Constants.M1_PROTO_TRAY_LEN))
         alpha = 0xFF - data[Constants.M1_PROTO_ALPHA_POS]
 
+        multi_mode = data[Constants.M1_PROTO_MULTI_MODE_POS]
         color_nums = data[Constants.M1_PROTO_COLOR_NUMS_POS]
 
         if color_nums > Constants.FILAMENT_PROTO_COLOR_NUMS_MAX:
@@ -102,6 +103,7 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
         self.logger.debug(" Sub Type: %s", sub_type)
         self.logger.debug(" Tray: %d", tray)
         self.logger.debug(" Color Nums: %d", color_nums)
+        self.logger.debug(" Multi Mode: %d", multi_mode)
         self.logger.debug(" RGB1: 0x%08X", rgb_1)
         self.logger.debug(" RGB2: 0x%08X", rgb_2)
         self.logger.debug(" RGB3: 0x%08X", rgb_3)
@@ -129,7 +131,7 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
             unique_id=GenericFilament.generate_unique_id("Snapmaker", vendor, manufacturer, main_type, sub_type, argb_color, weight_grams, sku, tray),
             manufacturer=vendor,
             type=main_type,
-            modifiers=[sub_type],
+            modifiers=[sub_type] if sub_type_code != Constants.FILAMENT_PROTO_SUB_TYPE_RESERVED else [],
             colors=colors,
             diameter_mm=diameter_mm,
             weight_grams=weight_grams,
@@ -138,7 +140,9 @@ class SnapmakerTagProcessor(MifareClassicTagProcessor):
             bed_temp_c=bed_temp,
             drying_temp_c=drying_temp,
             drying_time_hours=drying_time,
-            manufacturing_date="2026-01-01" # TODO: Extract actual date
+            manufacturing_date="2026-01-01", # TODO: Extract actual date
+            multi_color_mode=multi_mode,
+            sku=sku
         )
     
     def __hkdf_create_key(self, ikm : bytes, salt : bytes, key_type='a'):

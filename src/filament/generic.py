@@ -26,7 +26,9 @@ class GenericFilament:
                  drying_temp_c: float,
                  drying_time_hours: float,
                  manufacturing_date: str, # ISO 8601 date string
-                 td: float = 0.0 # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 td: float = 0.0, # Transmission Distance in mm for HueForge/OrcaSlicer-FullSpectrum
+                 multi_color_mode: int = 0, # How multiple colors are laid out, vendor defined (Snapmaker MULTI_MODE)
+                 sku: int = 0 # Vendor product number, 0 if unknown
                  ):
         self.source_processor = source_processor
         self.unique_id = unique_id
@@ -43,6 +45,8 @@ class GenericFilament:
         self.drying_time_hours = drying_time_hours
         self.manufacturing_date = manufacturing_date
         self.td = td
+        self.multi_color_mode = multi_color_mode
+        self.sku = sku
 
         if "CF" in self.modifiers:
             self.type += "-CF"
@@ -102,7 +106,9 @@ class GenericFilament:
             "drying_temp_c": self.drying_temp_c,
             "drying_time_hours": self.drying_time_hours,
             "manufacturing_date": self.manufacturing_date,
-            "td": self.td
+            "td": self.td,
+            "multi_color_mode": self.multi_color_mode,
+            "sku": self.sku
         }
     
     @staticmethod

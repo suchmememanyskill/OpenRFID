@@ -41,6 +41,7 @@ VALID_BASE_MATERIALS = [
     "PEI-9085",
     "PEI-9085-CF",
     "PEI-9085-GF",
+    "PEBA",
     "PEEK",
     "PEEK-CF",
     "PEEK-GF",
@@ -72,6 +73,7 @@ VALID_BASE_MATERIALS = [
     "PVB",
     "PVDF",
     "SBS",
+    "TPE",
     "TPI",
     "TPU",
 ]
