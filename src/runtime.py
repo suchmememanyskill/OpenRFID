@@ -78,19 +78,21 @@ class Runtime:
                 
                 if filament:
                     logging.info(f"Successfully read tag with UID {scan_result.uid.hex().upper()} on reader {reader.name}")
-                    self._notify_exporters(scan_result, filament, reader, ExporterEvent.TAG_READ)
+                    # Clear the request before notifying: exporters can be slow (webhook), and a
+                    # start_reading_tag() for this slot arriving meanwhile must not be wiped out
                     self.read_retries_left[i] = 0
+                    self._notify_exporters(scan_result, filament, reader, ExporterEvent.TAG_READ)
                 elif scan_result:
                     logging.info(f"Detected tag with UID {scan_result.uid.hex().upper()} on reader {reader.name} but failed to read data")
-                    self._notify_exporters(scan_result, None, reader, ExporterEvent.TAG_PARSE_ERROR)
                     self.read_retries_left[i] = 0
+                    self._notify_exporters(scan_result, None, reader, ExporterEvent.TAG_PARSE_ERROR)
                 elif self.config.auto_read_mode: # Auto-mode
                     # TODO: if tag was previously detected, it should at least once notify exporters about tag not present
                     logging.info(f"No tag detected on reader {reader.name}, but auto read mode is enabled, will retry")
                 else: # Fatal non-retrable error
                     logging.info(f"No tag detected on reader {reader.name}")
-                    self._notify_exporters(None, None, reader, ExporterEvent.TAG_NOT_PRESENT)
                     self.read_retries_left[i] = 0
+                    self._notify_exporters(None, None, reader, ExporterEvent.TAG_NOT_PRESENT)
 
             time.sleep(self.config.read_interval_seconds)
 
